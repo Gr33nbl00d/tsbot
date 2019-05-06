@@ -1,0 +1,33 @@
+serverconfig:
+  queryPort: 10011
+  commandTimeout: 10000
+  enableCommunicationsLogging: true
+  host: host.com
+  selectVirtualServerByPort: false
+  virtualServerIdentifier: 1
+
+botconfig:
+  tsUserName: TsBot
+  tsPassword: password
+  botNickname: TsBot
+  botHomeChannel: Bots
+  tsBotPluginList:
+              - de.greenblood.tsbot.plugins.autochannel.AutoChannelPlugin
+              - de.greenblood.tsbot.plugins.support.SupportPlugin
+supportplugin:
+  registrationChannelName: Registration
+  newUserGreetingText: Please wait for the support
+  supporterMessageText: 'New Guest User to register: %s'
+  newUserGroup: 8
+  serverGroupsToInform:
+                    - 6
+
+autochannelplugin:
+  autoChannelList:
+    - channelName: exampleautochannel
+      newChannelName: example channel [%s]
+      command: '!create'
+      autoChannelHelloMessages:
+                          - 'Hi create your own channel with %s'
+                          - 'If you want a channel with max user count write %s <playercount>'
+                          - 'For example %s 5 to create a channel with maximum of 5 users'
