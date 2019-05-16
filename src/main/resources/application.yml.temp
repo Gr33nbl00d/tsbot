@@ -1,43 +1,44 @@
 # HSQL database configuration
-  datasource:
-    url: jdbc:hsqldb:hsql://${hsql.server.host:localhost}:${hsql.server.port:9101}/${hsql.server.dbname:xdjob};sql.enforce_strict_size=true;hsqldb.tx=mvcc
-    username: sa
-    password:
-    driverClassName: org.hsqldb.jdbc.JDBCDriver
-#ConnectionPoolSettings
-    testOnBorrow: true
-    validationQuery: select 1 from INFORMATION_SCHEMA.SYSTEM_USERS
-    validationInterval: 30000
-    maxActive: 100
-    maxIdle: 100
-    minIdle: 10
-    initialSize: 0
-    maxWait: 30000
-    testOnReturn: false
-    testWhileIdle: false
-    timeBetweenEvictionRunsMillis: 5000
-    minEvictableIdleTimeMillis: 60000
-    removeAbandoned: false
-    removeAbandonedTimeout: 60
-    logAbandoned: false
+datasource:
+  url: jdbc:hsqldb:hsql://${hsql.server.host:localhost}:${hsql.server.port:9101}/${hsql.server.dbname:tsbotdb};sql.enforce_strict_size=true;hsqldb.tx=mvcc
+  username: sa
+  password:
+  driverClassName: org.hsqldb.jdbc.JDBCDriver
+  #ConnectionPoolSettings
+  testOnBorrow: true
+  validationQuery: select 1 from INFORMATION_SCHEMA.SYSTEM_USERS
+  validationInterval: 30000
+  maxActive: 100
+  maxIdle: 100
+  minIdle: 10
+  initialSize: 0
+  maxWait: 30000
+  testOnReturn: false
+  testWhileIdle: false
+  timeBetweenEvictionRunsMillis: 5000
+  minEvictableIdleTimeMillis: 60000
+  removeAbandoned: false
+  removeAbandonedTimeout: 60
+  logAbandoned: false
 
 serverconfig:
+  host: localhost
   queryPort: 10011
   commandTimeout: 10000
   enableCommunicationsLogging: true
-  host: host.com
   selectVirtualServerByPort: false
   virtualServerIdentifier: 1
 
 
 botconfig:
-  tsUserName: TsBot
-  tsPassword: password
+  tsUserName: serveradmin
+  tsPassword: nRl+ffNb
   botNickname: TsBot
   botHomeChannel: Bots
   tsBotPluginList:
               - de.greenblood.tsbot.plugins.autochannel.AutoChannelPlugin
               - de.greenblood.tsbot.plugins.support.SupportPlugin
+              - de.greenblood.tsbot.plugins.vpnprotection.VpnProtectionPlugin
 supportplugin:
   registrationChannelName: Registration
   newUserGreetingText: Please wait for the support
@@ -48,7 +49,7 @@ supportplugin:
 
 autochannelplugin:
   autoChannelList:
-    - channelName: exampleautochannel
+    - channelName: autochannel
       newChannelName: example channel [%s]
       command: '!create'
       autoChannelHelloMessages:
