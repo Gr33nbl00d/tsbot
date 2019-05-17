@@ -1,30 +1,26 @@
 package de.greenblood.tsbot;
 
-import com.github.theholywaffle.teamspeak3.TS3Config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @ConfigurationProperties("botconfig")
 public class TsBotConfig {
-    private String tsUsername;
-    private String tsPassword;
+
+    private String loginName;
+    private String loginPassword;
     private String botNickname;
     private List<String> tsBotPluginList;
     private String botHomeChannel;
 
-    public String getTsUsername() {
-        return tsUsername;
+    public String getLoginName() {
+        return loginName;
     }
 
-    public String getTsPassword() {
-        return tsPassword;
+    public String getLoginPassword() {
+        return loginPassword;
     }
 
     public String getBotNickname() {
@@ -35,12 +31,12 @@ public class TsBotConfig {
         return tsBotPluginList;
     }
 
-    public void setTsUsername(String tsUsername) {
-        this.tsUsername = tsUsername;
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
     }
 
-    public void setTsPassword(String tsPassword) {
-        this.tsPassword = tsPassword;
+    public void setLoginPassword(String loginPassword) {
+        this.loginPassword = loginPassword;
     }
 
     public void setBotNickname(String botNickname) {

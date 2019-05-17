@@ -1,4 +1,4 @@
-package de.greenblood.tsbot.plugins.vpnprotection.detector;
+package de.greenblood.tsbot.plugins.vpnprotection.provider;
 
 import com.google.gson.annotations.SerializedName;
 

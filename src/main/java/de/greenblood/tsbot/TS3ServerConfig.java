@@ -2,16 +2,21 @@ package de.greenblood.tsbot;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by Greenblood on 29.04.2019.
  */
 @Component
 @ConfigurationProperties("serverconfig")
+@Validated
 public class TS3ServerConfig {
     private int queryPort;
     private int commandTimeout;
     private boolean enableCommunicationsLogging;
+    @NotNull
     private String host;
     private int virtualServerIdentifier;
     private boolean selectVirtualServerByPort;

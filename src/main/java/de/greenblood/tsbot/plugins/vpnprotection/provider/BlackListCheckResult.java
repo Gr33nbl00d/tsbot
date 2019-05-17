@@ -1,4 +1,4 @@
-package de.greenblood.tsbot.plugins.vpnprotection.detector;
+package de.greenblood.tsbot.plugins.vpnprotection.provider;
 
 public class BlackListCheckResult
 {

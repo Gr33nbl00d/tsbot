@@ -2,55 +2,126 @@ package de.greenblood.tsbot.plugins.support;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Component
 @ConfigurationProperties("supportplugin")
-public class SupportPluginConfig {
-    private String registrationChannelName;
-    private int newUserGroup;
-    private List<Integer> serverGroupsToInform;
-    private String newUserGreetingText;
-    private String supporterMessageText;
+@Validated
+public class SupportPluginConfig
+{
+    @NotNull
+    private RegistrationChannelConfig registrationChannelConfig;
+    private List<SupportChannelConfig> supportChannels;
 
-    public String getRegistrationChannelName() {
-        return registrationChannelName;
+    public RegistrationChannelConfig getRegistrationChannelConfig()
+    {
+        return registrationChannelConfig;
     }
 
-    public void setRegistrationChannelName(String registrationChannelName) {
-        this.registrationChannelName = registrationChannelName;
+    public void setRegistrationChannelConfig(RegistrationChannelConfig registrationChannelConfig)
+    {
+        this.registrationChannelConfig = registrationChannelConfig;
     }
 
-    public int getNewUserGroup() {
-        return newUserGroup;
+    public List<SupportChannelConfig> getSupportChannels()
+    {
+        return supportChannels;
     }
 
-    public void setNewUserGroup(int newUserGroup) {
-        this.newUserGroup = newUserGroup;
+    public void setSupportChannels(List<SupportChannelConfig> supportChannels)
+    {
+        this.supportChannels = supportChannels;
     }
 
-    public List<Integer> getServerGroupsToInform() {
-        return serverGroupsToInform;
+    public static class RegistrationChannelConfig extends SupportChannelConfig
+    {
+        private int newUserGroup;
+
+        public int getNewUserGroup()
+        {
+            return newUserGroup;
+        }
+
+        public void setNewUserGroup(int newUserGroup)
+        {
+            this.newUserGroup = newUserGroup;
+        }
     }
 
-    public void setServerGroupsToInform(List<Integer> serverGroupsToInform) {
-        this.serverGroupsToInform = serverGroupsToInform;
-    }
+    public static class SupportChannelConfig
+    {
+        @NotNull
+        private String channelName;
+        private List<Integer> serverGroupsToInform;
+        @NotNull
+        private String greetingMessage;
+        @NotNull
+        private String noSuporterOnlineMessage;
+        @NotNull
+        private String supporterMessage;
+        private List<Integer> serverGroupsToIgnore;
 
-    public String getNewUserGreetingText() {
-        return newUserGreetingText;
-    }
+        public String getNoSuporterOnlineMessage()
+        {
+            return noSuporterOnlineMessage;
+        }
 
-    public void setNewUserGreetingText(String newUserGreetingText) {
-        this.newUserGreetingText = newUserGreetingText;
-    }
+        public void setNoSuporterOnlineMessage(String noSuporterOnlineMessage)
+        {
+            this.noSuporterOnlineMessage = noSuporterOnlineMessage;
+        }
 
-    public String getSupporterMessageText() {
-        return supporterMessageText;
-    }
+        public List<Integer> getServerGroupsToIgnore()
+        {
+            return serverGroupsToIgnore;
+        }
 
-    public void setSupporterMessageText(String supporterMessageText) {
-        this.supporterMessageText = supporterMessageText;
+        public void setServerGroupsToIgnore(List<Integer> serverGroupsToIgnore)
+        {
+            this.serverGroupsToIgnore = serverGroupsToIgnore;
+        }
+
+        public String getChannelName()
+        {
+            return channelName;
+        }
+
+        public void setChannelName(String channelName)
+        {
+            this.channelName = channelName;
+        }
+
+        public List<Integer> getServerGroupsToInform()
+        {
+            return serverGroupsToInform;
+        }
+
+        public void setServerGroupsToInform(List<Integer> serverGroupsToInform)
+        {
+            this.serverGroupsToInform = serverGroupsToInform;
+        }
+
+        public String getGreetingMessage()
+        {
+            return greetingMessage;
+        }
+
+        public void setGreetingMessage(String greetingMessage)
+        {
+            this.greetingMessage = greetingMessage;
+        }
+
+        public String getSupporterMessage()
+        {
+            return supporterMessage;
+        }
+
+        public void setSupporterMessage(String supporterMessage)
+        {
+            this.supporterMessage = supporterMessage;
+        }
     }
 }
