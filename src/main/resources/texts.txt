@@ -1,0 +1,8 @@
+message = "[b]|[color=red] Phoenix[/color] » User [ [color=red]"+api.getClientInfo(e.getClientId()).getNickname()+"[/color] ] , wartet in  [color=red]┏ Support × Warteraum! [/color][/b]";
+message = "[b]|[color=red] Phoenix[/color] » User [ [color=red]"+api.getClientInfo(e.getClientId()).getNickname()+"[/color] ] , wartet in  [color=red]┣ Support × Registrierung![/color][/b]";
+message	="[B]| Phoenix » Bitte warte, es sind [color=red]"+adminonline+"[/color] Teammitglieder da, um zu helfen![/B]";
+message	="[B]| [color=red]Phoenix[/color] » Momentan sind keine Teammitglieder online um dir zu helfen![/B]";
+
+
+			if(!c.isServerQueryClient()) {
+				if(api.getClientInfo(c.getId()).isInServerGroup(22374) || api.getClientInfo(c.getId()).isInServerGroup(22334) ) {

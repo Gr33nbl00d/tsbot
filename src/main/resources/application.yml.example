@@ -1,57 +1,102 @@
-# HSQL database configuration
-  datasource:
-    url: jdbc:hsqldb:hsql://${hsql.server.host:localhost}:${hsql.server.port:9101}/${hsql.server.dbname:xdjob};sql.enforce_strict_size=true;hsqldb.tx=mvcc
-    username: sa
-    password:
-    driverClassName: org.hsqldb.jdbc.JDBCDriver
-#ConnectionPoolSettings
-    testOnBorrow: true
-    validationQuery: select 1 from INFORMATION_SCHEMA.SYSTEM_USERS
-    validationInterval: 30000
-    maxActive: 100
-    maxIdle: 100
-    minIdle: 10
-    initialSize: 0
-    maxWait: 30000
-    testOnReturn: false
-    testWhileIdle: false
-    timeBetweenEvictionRunsMillis: 5000
-    minEvictableIdleTimeMillis: 60000
-    removeAbandoned: false
-    removeAbandonedTimeout: 60
-    logAbandoned: false
-
 serverconfig:
+  host: localhost
   queryPort: 10011
   commandTimeout: 10000
   enableCommunicationsLogging: true
-  host: host.com
   selectVirtualServerByPort: false
   virtualServerIdentifier: 1
 
 
 botconfig:
-  tsUserName: TsBot
-  tsPassword: password
+  loginName: serveradmin
+  loginPassword: xxxxxxxxxxxxxxxxxxx
   botNickname: TsBot
   botHomeChannel: Bots
   tsBotPluginList:
-              - de.greenblood.tsbot.plugins.autochannel.AutoChannelPlugin
+              - de.greenblood.tsbot.plugins.vpnprotection.VpnProtectionPlugin
+              - de.greenblood.tsbot.plugins.greeter.GreeterPlugin
               - de.greenblood.tsbot.plugins.support.SupportPlugin
+              - de.greenblood.tsbot.plugins.autochannel.AutoChannelPlugin
+              
+greeterplugin:
+  greetingMessages:
+    - Hi %NICKNAME% welcome on our Teamspeak Server
+              
 supportplugin:
-  registrationChannelName: Registration
-  newUserGreetingText: Please wait for the support
-  supporterMessageText: 'New Guest User to register: %s'
-  newUserGroup: 8
-  serverGroupsToInform:
+  registrationchannelconfig:
+    newUserGroup: 8
+    channelName: Registration
+    greetingMessage: 'Please wait for the support'    
+    noSuporterOnlineMessage: 'Im sorry currently are no supporters online, please come back later'
+    supporterMessage: 'New Guest User to register: %NICKNAME%'        
+    serverGroupsToInform:
                     - 6
+  supportChannels:
+               - channelName: 'support'
+                 serverGroupsToInform: 
+                                   - 6
+                 serverGroupsToIgnore: 
+                                   - 7                                   
+                 greetingMessage : 'Hi Staff is informed'
+                 noSuporterOnlineMessage: 'Im sorry currently are no supporters online, please come back later'
+                 supporterMessage: 'New User waiting in support: %NICKNAME%'
 
 autochannelplugin:
   autoChannelList:
-    - channelName: exampleautochannel
-      newChannelName: example channel [%s]
+    - channelName: autochannel
+      newChannelName: example channel [%NICKNAME%]
       command: '!create'
       autoChannelHelloMessages:
-                          - 'Hi create your own channel with %s'
-                          - 'If you want a channel with max user count write %s <playercount>'
-                          - 'For example %s 5 to create a channel with maximum of 5 users'
+                          - 'Hi create your own channel with %COMMAND%'
+                          - 'If you want a channel with max user count write %COMMAND% <playercount>'
+                          - 'For example %COMMAND% 5 to create a channel with maximum of 5 users'
+                          
+vpnprotectionplugin:
+ blackListProvider: de.greenblood.tsbot.plugins.vpnprotection.provider.IPQualityScoreComBlackListProvider
+ ipCacheSize: 5000
+ kickMessage: 'Your ip %IP% was detected as vpn/proxy or has engaged in recent abuse'
+ whiteList:
+   - '127.0.0.1'
+   
+ipqualityscorecomconfig:
+  timeout : 5000
+  apiKey: 'XXXXXXXXXXXXXX'
+  maximumAllowedFraudScore: 75
+  useVpnDetection: true
+  useProxyDetection: true
+  strictness: 0
+  allowPublicAccessPoints: true
+  fastCheck: true
+
+
+
+
+
+
+
+
+
+
+
+# HSQL database configuration
+datasource:
+  url: jdbc:hsqldb:hsql://${hsql.server.host:localhost}:${hsql.server.port:9101}/${hsql.server.dbname:tsbotdb};sql.enforce_strict_size=true;hsqldb.tx=mvcc
+  username: sa
+  password:
+  driverClassName: org.hsqldb.jdbc.JDBCDriver
+  #ConnectionPoolSettings
+  testOnBorrow: true
+  validationQuery: select 1 from INFORMATION_SCHEMA.SYSTEM_USERS
+  validationInterval: 30000
+  maxActive: 100
+  maxIdle: 100
+  minIdle: 10
+  initialSize: 0
+  maxWait: 30000
+  testOnReturn: false
+  testWhileIdle: false
+  timeBetweenEvictionRunsMillis: 5000
+  minEvictableIdleTimeMillis: 60000
+  removeAbandoned: false
+  removeAbandonedTimeout: 60
+  logAbandoned: false
