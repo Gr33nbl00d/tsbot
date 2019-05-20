@@ -1,6 +1,5 @@
 package de.greenblood.tsbot.common;
 
-import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 public class MessageFormattingUtil
@@ -17,8 +16,16 @@ public class MessageFormattingUtil
         return message.replaceAll("\\%COMMAND\\%", commandName);
     }
 
-    public String formatNewChannel(String message, TextMessageEvent e)
+    public String formatNewChannel(String message, Client client, int maxClients)
     {
-        return message.replaceAll("\\%NICKNAME\\%", e.getInvokerName());
+        message = message.replaceAll("\\%MAXCLIENTS\\%", Integer.toString(maxClients));
+        return this.formatNewChannel(message, client);
     }
+
+    public String formatNewChannel(String message, Client client)
+    {
+        message = message.replaceAll("\\%NICKNAME\\%", client.getNickname());
+        return message;
+    }
+
 }

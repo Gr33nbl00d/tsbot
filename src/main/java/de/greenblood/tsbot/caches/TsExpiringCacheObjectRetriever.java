@@ -1,4 +1,4 @@
-package de.greenblood.tsbot.plugins.caches;
+package de.greenblood.tsbot.caches;
 
 import de.greenblood.tsbot.common.Ts3BotContext;
 import org.apache.commons.collections4.map.PassiveExpiringMap;

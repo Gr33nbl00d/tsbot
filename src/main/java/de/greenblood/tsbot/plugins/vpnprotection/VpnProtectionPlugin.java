@@ -8,7 +8,7 @@ import de.greenblood.tsbot.TsBotPlugin;
 import de.greenblood.tsbot.common.BeanUtil;
 import de.greenblood.tsbot.common.MessageFormattingUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.plugins.caches.ClientInfoRetriever;
+import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListCheckResult;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListProvider;
 import org.apache.commons.collections4.map.LRUMap;
@@ -37,7 +37,6 @@ public class VpnProtectionPlugin implements TsBotPlugin
     private BlackListProvider blackListProvider;
     private Logger logger = LoggerFactory.getLogger(VpnProtectionPlugin.class);
     private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
-    private ClientInfoRetriever clientInfoRetriever = new ClientInfoRetriever();
 
     public VpnProtectionPlugin()
     {
@@ -46,7 +45,7 @@ public class VpnProtectionPlugin implements TsBotPlugin
     @Override
     public void onClientJoin(Ts3BotContext context, ClientJoinEvent e)
     {
-        ClientInfo clientInfo = clientInfoRetriever.retrieve(context, e.getClientId(), true);
+        ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
         String ip = clientInfo.getIp();
         if (whiteList.contains(ip))
         {

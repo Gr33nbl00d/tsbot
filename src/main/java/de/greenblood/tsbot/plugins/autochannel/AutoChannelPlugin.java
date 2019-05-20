@@ -6,11 +6,12 @@ import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
-import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import de.greenblood.tsbot.common.MessageFormattingUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.common.TsApiUtils;
 import de.greenblood.tsbot.TsBotPlugin;
+import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +30,7 @@ public class AutoChannelPlugin implements TsBotPlugin
     private TsApiUtils tsApiUtils = new TsApiUtils();
     @Autowired
     private AutoChannelPluginConfig autoChannelPluginConfig;
-    private Map<String, Channel> channelMap = new HashMap<>();
+    private Map<String, Channel> channelNameToParentChannelMap = new HashMap<>();
     private Map<String, String> commandChannelMap = new HashMap<>();
     private Map<Integer, AutoChannelConfig> channelIdToConfigMap = new HashMap<>();
     private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
@@ -51,33 +52,53 @@ public class AutoChannelPlugin implements TsBotPlugin
                 Matcher matcher = pattern.matcher(e.getMessage());
                 if (matcher.matches())
                 {
-                    Map<ChannelProperty, String> channelProperties = new HashMap<>();
                     String channelName = this.commandChannelMap.get(entry.getKey());
-                    Channel parentChannel = this.channelMap.get(channelName);
-                    channelProperties.put(ChannelProperty.CPID, "" + parentChannel.getId());
+                    Channel parentChannel = this.channelNameToParentChannelMap.get(channelName);
 
                     String playerCountStr = matcher.group(1);
-                    if ("".equals(playerCountStr) == false)
-                    {
-                        channelProperties.put(ChannelProperty.CHANNEL_MAXCLIENTS, playerCountStr);
-                        channelProperties.put(ChannelProperty.CHANNEL_FLAG_MAXCLIENTS_UNLIMITED, "0");
-                    }
-                    else
-                    {
-                        channelProperties.put(ChannelProperty.CHANNEL_FLAG_MAXCLIENTS_UNLIMITED, "1");
-                    }
 
-                    channelProperties.put(ChannelProperty.CHANNEL_FLAG_SEMI_PERMANENT, "1");
-                    channelProperties.put(ChannelProperty.CHANNEL_FLAG_TEMPORARY, "0");
-                    channelProperties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "0");
-                    AutoChannelConfig autoChannelConfig = this.channelIdToConfigMap.get(parentChannel.getId());
-                    int channel = context.getApi().createChannel(messageFormattingUtil.formatNewChannel(autoChannelConfig.getNewChannelName(), e), channelProperties);
-                    context.getApi().moveClient(e.getInvokerId(), channel);
-                    context.getApi().editChannel(channel, ChannelProperty.CHANNEL_FLAG_SEMI_PERMANENT, "0");
+                    createChannel(context, parentChannel.getId(), e.getInvokerId(), playerCountStr);
                     //context.getApi().editChannel(channel, ChannelProperty.CHANNEL_FLAG_TEMPORARY, "1");
                     return;
                 }
             }
+        }
+    }
+
+    private void createChannel(Ts3BotContext context, int parentChannelId, int clientId, String playerCountStr)
+    {
+        Map<ChannelProperty, String> channelProperties = new HashMap<>();
+        AutoChannelConfig autoChannelConfig = this.channelIdToConfigMap.get(parentChannelId);
+        ClientInfo client = ClientInfoRetriever.getInstance().retrieve(context, clientId, true);
+
+
+        channelProperties.put(ChannelProperty.CPID, "" + parentChannelId);
+        String newChannelName;
+        if (playerCountStr != null && "".equals(playerCountStr) == false)
+        {
+            channelProperties.put(ChannelProperty.CHANNEL_MAXCLIENTS, playerCountStr);
+            channelProperties.put(ChannelProperty.CHANNEL_FLAG_MAXCLIENTS_UNLIMITED, "0");
+        }
+        else
+        {
+            channelProperties.put(ChannelProperty.CHANNEL_FLAG_MAXCLIENTS_UNLIMITED, "1");
+        }
+
+        newChannelName = messageFormattingUtil.formatNewChannel(autoChannelConfig.getNewChannelName(), client);
+
+        Channel existingChannel = context.getApi().getChannelByNameExact(newChannelName, false);
+        if (existingChannel != null)
+        {
+            context.getAsyncApi().editChannel(existingChannel.getId(), channelProperties);
+        }
+        else
+        {
+            channelProperties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "0");
+            channelProperties.put(ChannelProperty.CHANNEL_FLAG_TEMPORARY, "0");
+            channelProperties.put(ChannelProperty.CHANNEL_FLAG_SEMI_PERMANENT, "1");
+            int channel = context.getApi().createChannel(newChannelName, channelProperties);
+            context.getApi().moveClient(clientId, channel);
+            context.getApi().editChannel(channel, ChannelProperty.CHANNEL_FLAG_SEMI_PERMANENT, "0");
         }
     }
 
@@ -89,7 +110,7 @@ public class AutoChannelPlugin implements TsBotPlugin
         {
             String channelName = autoChannelConfig.getChannelName();
             Channel channel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), channelName, true);
-            this.channelMap.put(channelName, channel);
+            this.channelNameToParentChannelMap.put(channelName, channel);
             this.commandChannelMap.put(autoChannelConfig.getCommand(), channelName);
             this.channelIdToConfigMap.put(channel.getId(), autoChannelConfig);
         }
@@ -98,16 +119,28 @@ public class AutoChannelPlugin implements TsBotPlugin
     @Override
     public void onClientMoved(Ts3BotContext context, ClientMovedEvent e)
     {
-        for (Channel channel : this.channelMap.values())
+        for (Channel channel : this.channelNameToParentChannelMap.values())
         {
             if (e.getTargetChannelId() == channel.getId())
             {
                 AutoChannelConfig config = this.channelIdToConfigMap.get(channel.getId());
                 String commandName = config.getCommand();
-                for (String message : config.getAutoChannelHelloMessages())
+                if (config.isAutoCreateOnJoin())
                 {
-                    context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), messageFormattingUtil.formatCommand(message, commandName));
+                    createChannel(context, channel.getId(), e.getClientId(), null);
+                    for (String message : config.getAutoChannelCreatedMessages())
+                    {
+                        context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), messageFormattingUtil.formatCommand(message, commandName));
+                    }
                 }
+                else
+                {
+                    for (String message : config.getAutoChannelHelloMessages())
+                    {
+                        context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), messageFormattingUtil.formatCommand(message, commandName));
+                    }
+                }
+                return;
             }
         }
     }

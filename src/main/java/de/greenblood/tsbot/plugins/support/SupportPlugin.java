@@ -14,7 +14,7 @@ import de.greenblood.tsbot.common.MessageFormattingUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.common.TsApiUtils;
 import de.greenblood.tsbot.common.UserListCache;
-import de.greenblood.tsbot.plugins.caches.ClientInfoRetriever;
+import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,6 @@ public class SupportPlugin implements TsBotPlugin
     private TsBotConfig botConfig;
     private Map<Integer, SupportPluginConfig.SupportChannelConfig> chanlIdTSupportChannelConfigMap = new HashMap<>();
     private MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
-    private ClientInfoRetriever clientInfoRetriever = new ClientInfoRetriever();
 
     @Override
     public void onClientJoin(Ts3BotContext context, ClientJoinEvent e)
@@ -121,7 +120,7 @@ public class SupportPlugin implements TsBotPlugin
             {
                 return;
             }
-            ClientInfo client = clientInfoRetriever.retrieve(context, e.getClientId(), true);
+            ClientInfo client = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
             String message = messageFormattingUtil.format(supportChannelConfig.getSupporterMessage(), client);
             List<Client> supportersToInform = UserListCache.getInstance().getFilteredClients(context, 30000, supportChannelConfig.getServerGroupsToInform());
             sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);

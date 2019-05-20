@@ -48,6 +48,7 @@ public class Ts3Bot extends TS3EventAdapter {
         config.setEnableCommunicationsLogging(serverConfig.isEnableCommunicationsLogging());
         config.setHost(serverConfig.getHost());
         config.setReconnectStrategy(ReconnectStrategy.constantBackoff(5000));
+        config.setFloodRate(TS3Query.FloodRate.custom(serverConfig.getFloodRate()));
         config.setConnectionHandler(new ConnectionHandler()
         {
             @Override
