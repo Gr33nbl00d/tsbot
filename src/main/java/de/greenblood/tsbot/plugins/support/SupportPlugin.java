@@ -28,8 +28,7 @@ import java.util.Map;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class SupportPlugin implements TsBotPlugin
-{
+public class SupportPlugin implements TsBotPlugin {
     private static final Logger log = LoggerFactory.getLogger(SupportPlugin.class);
     private TsApiUtils tsApiUtils = new TsApiUtils();
     private Channel registrationChannel;
@@ -41,17 +40,14 @@ public class SupportPlugin implements TsBotPlugin
     private MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
 
     @Override
-    public void onClientJoin(Ts3BotContext context, ClientJoinEvent e)
-    {
+    public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
         TS3ApiAsync asyncApi = context.getAsyncApi();
-        if (tsApiUtils.isNewUser(e, supportPluginConfig.getRegistrationChannelConfig().getNewUserGroup()))
-        {
+        if (tsApiUtils.isNewUser(e, supportPluginConfig.getRegistrationChannelConfig().getNewUserGroup())) {
             handleUnregisteredUser(context, e, asyncApi);
         }
     }
 
-    private void handleUnregisteredUser(Ts3BotContext context, ClientJoinEvent e, TS3ApiAsync asyncApi)
-    {
+    private void handleUnregisteredUser(Ts3BotContext context, ClientJoinEvent e, TS3ApiAsync asyncApi) {
         List<Client> supportersToInform = UserListCache.getInstance().getFilteredClients(context, 30000, supportPluginConfig.getRegistrationChannelConfig().getServerGroupsToInform());
         sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
         asyncApi.moveClient(e.getClientId(), registrationChannel.getId());
@@ -61,48 +57,37 @@ public class SupportPlugin implements TsBotPlugin
         informSupporter(context, supportersToInform, message);
     }
 
-    private void informSupporter(Ts3BotContext context, List<Client> supportersToInform, String message)
-    {
-        for (Client client : supportersToInform)
-        {
+    private void informSupporter(Ts3BotContext context, List<Client> supportersToInform, String message) {
+        for (Client client : supportersToInform) {
             context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, client.getId(), messageFormattingUtil.format(message, client));
         }
     }
 
-    private void sendWelcomeMessageToNewUser(Ts3BotContext context, int clientId, List<Client> supportersToInform)
-    {
-        if (supportersToInform.isEmpty())
-        {
+    private void sendWelcomeMessageToNewUser(Ts3BotContext context, int clientId, List<Client> supportersToInform) {
+        if (supportersToInform.isEmpty()) {
             context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, clientId, supportPluginConfig.getRegistrationChannelConfig().getNoSuporterOnlineMessage());
-        }
-        else
-        {
+        } else {
             context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, clientId, supportPluginConfig.getRegistrationChannelConfig().getGreetingMessage());
         }
     }
 
     @Override
-    public void onTextMessage(Ts3BotContext context, TextMessageEvent e)
-    {
+    public void onTextMessage(Ts3BotContext context, TextMessageEvent e) {
 
     }
 
     @Override
-    public void init(Ts3BotContext context)
-    {
+    public void init(Ts3BotContext context) {
         this.registrationChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), supportPluginConfig.getRegistrationChannelConfig().getChannelName(), true);
 
-        if (botConfig.getBotHomeChannel() != null)
-        {
+        if (botConfig.getBotHomeChannel() != null) {
             Channel botHomeChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), botConfig.getBotHomeChannel(), true);
             context.getApi().moveQuery(botHomeChannel);
         }
 
         List<SupportPluginConfig.SupportChannelConfig> supportChannels = supportPluginConfig.getSupportChannels();
-        if (supportChannels != null)
-        {
-            for (SupportPluginConfig.SupportChannelConfig supportChannel : supportChannels)
-            {
+        if (supportChannels != null) {
+            for (SupportPluginConfig.SupportChannelConfig supportChannel : supportChannels) {
                 Channel channel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), supportChannel.getChannelName(), true);
                 this.chanlIdTSupportChannelConfigMap.put(channel.getId(), supportChannel);
             }
@@ -111,13 +96,10 @@ public class SupportPlugin implements TsBotPlugin
     }
 
     @Override
-    public void onClientMoved(Ts3BotContext context, ClientMovedEvent e)
-    {
+    public void onClientMoved(Ts3BotContext context, ClientMovedEvent e) {
         SupportPluginConfig.SupportChannelConfig supportChannelConfig = this.chanlIdTSupportChannelConfigMap.get(e.getTargetChannelId());
-        if (supportChannelConfig != null)
-        {
-            if (supportChannelConfig.getServerGroupsToIgnore().contains(e.getClientId()) || supportChannelConfig.getServerGroupsToInform().contains(e.getClientId()))
-            {
+        if (supportChannelConfig != null) {
+            if (isClientInIgnoredGroup(context, e, supportChannelConfig) || isClientInServerGroupsToInform(context, e, supportChannelConfig)) {
                 return;
             }
             ClientInfo client = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
@@ -126,6 +108,24 @@ public class SupportPlugin implements TsBotPlugin
             sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
             informSupporter(context, supportersToInform, message);
         }
+    }
+
+    private boolean isClientInServerGroupsToInform(Ts3BotContext context, ClientMovedEvent e, SupportPluginConfig.SupportChannelConfig supportChannelConfig) {
+        ClientInfo client = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
+        for (Integer serverGroupToInform : supportChannelConfig.getServerGroupsToInform()) {
+            if (client.isInServerGroup(serverGroupToInform))
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isClientInIgnoredGroup(Ts3BotContext context, ClientMovedEvent e, SupportPluginConfig.SupportChannelConfig supportChannelConfig) {
+        for (Integer serverGroupId : supportChannelConfig.getServerGroupsToIgnore()) {
+            ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
+            if (clientInfo.isInServerGroup(serverGroupId))
+                return true;
+        }
+        return false;
     }
 
 

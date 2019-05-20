@@ -85,4 +85,8 @@ public class AutoChannelConfig
     {
         this.autoChannelHelloMessages = autoChannelHelloMessages;
     }
+
+    public void setNewChannelName(String newChannelName) {
+        this.newChannelName = newChannelName;
+    }
 }
