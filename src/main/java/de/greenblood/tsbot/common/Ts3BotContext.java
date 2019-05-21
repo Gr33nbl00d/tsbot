@@ -8,9 +8,10 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
  * Created by Greenblood on 14.04.2019.
  */
 public interface Ts3BotContext {
-    TS3ApiAsync getAsyncApi();
 
-    ServerQueryInfo getSessionInfo();
+  TS3ApiAsync getAsyncApi();
 
-    TS3Api getApi();
+  ServerQueryInfo getSessionInfo();
+
+  TS3Api getApi();
 }

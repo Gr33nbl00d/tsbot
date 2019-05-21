@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.List;
 
 /**
@@ -11,82 +12,69 @@ import java.util.List;
  */
 @Component
 @Validated
-public class AutoChannelConfig
-{
+public class AutoChannelConfig {
 
-    @NotNull
-    private String channelName;
-    @NotNull
-    private boolean autoCreateOnJoin;
-    @NotNull
-    private String newChannelName;
-    @NotNull
-    private String command;
-    private List<String> autoChannelHelloMessages;
-    @NotNull
-    private List<String> autoChannelCreatedMessages;
-    
-    public List<String> getAutoChannelCreatedMessages()
-    {
-        return autoChannelCreatedMessages;
-    }
+  @NotNull
+  private String channelName;
+  @NotNull
+  private boolean autoCreateOnJoin;
+  @NotNull
+  private String newChannelName;
+  @NotNull
+  private String command;
+  private List<String> autoChannelHelloMessages;
+  @NotNull
+  private List<String> autoChannelCreatedMessages;
 
-    public void setAutoChannelCreatedMessages(List<String> autoChannelCreatedMessages)
-    {
-        this.autoChannelCreatedMessages = autoChannelCreatedMessages;
-    }
+  public List<String> getAutoChannelCreatedMessages() {
+    return autoChannelCreatedMessages;
+  }
 
-    public boolean isAutoCreateOnJoin()
-    {
-        return autoCreateOnJoin;
-    }
+  public void setAutoChannelCreatedMessages(List<String> autoChannelCreatedMessages) {
+    this.autoChannelCreatedMessages = autoChannelCreatedMessages;
+  }
 
-    public void setAutoCreateOnJoin(boolean autoCreateOnJoin)
-    {
-        this.autoCreateOnJoin = autoCreateOnJoin;
-    }
+  public boolean isAutoCreateOnJoin() {
+    return autoCreateOnJoin;
+  }
 
-    public String getChannelName()
-    {
-        return channelName;
-    }
+  public void setAutoCreateOnJoin(boolean autoCreateOnJoin) {
+    this.autoCreateOnJoin = autoCreateOnJoin;
+  }
 
-    public void setChannelName(String channelName)
-    {
-        this.channelName = channelName;
-    }
+  public String getChannelName() {
+    return channelName;
+  }
 
-    public String getNewChannelName()
-    {
-        return newChannelName;
-    }
+  public void setChannelName(String channelName) {
+    this.channelName = channelName;
+  }
 
-    public void setNewChannelNameUnlimitedUsers(String newChannelNameUnlimitedUsers)
-    {
-        this.newChannelName = newChannelNameUnlimitedUsers;
-    }
+  public String getNewChannelName() {
+    return newChannelName;
+  }
 
-    public String getCommand()
-    {
-        return command;
-    }
+  public void setNewChannelNameUnlimitedUsers(String newChannelNameUnlimitedUsers) {
+    this.newChannelName = newChannelNameUnlimitedUsers;
+  }
 
-    public void setCommand(String command)
-    {
-        this.command = command;
-    }
+  public String getCommand() {
+    return command;
+  }
 
-    public List<String> getAutoChannelHelloMessages()
-    {
-        return autoChannelHelloMessages;
-    }
+  public void setCommand(String command) {
+    this.command = command;
+  }
 
-    public void setAutoChannelHelloMessages(List<String> autoChannelHelloMessages)
-    {
-        this.autoChannelHelloMessages = autoChannelHelloMessages;
-    }
+  public List<String> getAutoChannelHelloMessages() {
+    return autoChannelHelloMessages;
+  }
 
-    public void setNewChannelName(String newChannelName) {
-        this.newChannelName = newChannelName;
-    }
+  public void setAutoChannelHelloMessages(List<String> autoChannelHelloMessages) {
+    this.autoChannelHelloMessages = autoChannelHelloMessages;
+  }
+
+  public void setNewChannelName(String newChannelName) {
+    this.newChannelName = newChannelName;
+  }
 }

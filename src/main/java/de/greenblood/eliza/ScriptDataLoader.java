@@ -1,6 +1,6 @@
 package de.greenblood.eliza;
 
-public interface ScriptDataLoader
-{
-    public String[] loadStrings(String script);
+public interface ScriptDataLoader {
+
+  public String[] loadStrings(String script);
 }

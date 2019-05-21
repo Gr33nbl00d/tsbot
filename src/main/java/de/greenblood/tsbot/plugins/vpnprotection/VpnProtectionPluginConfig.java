@@ -5,60 +5,53 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
+
 import java.util.List;
 
 @Component
 @ConfigurationProperties("vpnprotectionplugin")
 @Validated
-public class VpnProtectionPluginConfig
-{
-    @NotNull
-    private String blackListProvider;
-    @NotNull
-    private Integer ipCacheSize;
-    @NotNull
-    private List<String> whiteList;
-    @NotNull
-    private String kickMessage;
+public class VpnProtectionPluginConfig {
 
-    public String getKickMessage()
-    {
-        return kickMessage;
-    }
+  @NotNull
+  private String blackListProvider;
+  @NotNull
+  private Integer ipCacheSize;
+  @NotNull
+  private List<String> whiteList;
+  @NotNull
+  private String kickMessage;
 
-    public void setKickMessage(String kickMessage)
-    {
-        this.kickMessage = kickMessage;
-    }
+  public String getKickMessage() {
+    return kickMessage;
+  }
 
-    public String getBlackListProvider()
-    {
-        return blackListProvider;
-    }
+  public void setKickMessage(String kickMessage) {
+    this.kickMessage = kickMessage;
+  }
 
-    public void setBlackListProvider(String blackListProvider)
-    {
-        this.blackListProvider = blackListProvider;
-    }
+  public String getBlackListProvider() {
+    return blackListProvider;
+  }
 
-    public Integer getIpCacheSize()
-    {
-        return ipCacheSize;
-    }
+  public void setBlackListProvider(String blackListProvider) {
+    this.blackListProvider = blackListProvider;
+  }
 
-    public void setIpCacheSize(Integer ipCacheSize)
-    {
-        this.ipCacheSize = ipCacheSize;
-    }
+  public Integer getIpCacheSize() {
+    return ipCacheSize;
+  }
 
-    public List<String> getWhiteList()
-    {
-        return whiteList;
-    }
+  public void setIpCacheSize(Integer ipCacheSize) {
+    this.ipCacheSize = ipCacheSize;
+  }
 
-    public void setWhiteList(List<String> whiteList)
-    {
-        this.whiteList = whiteList;
-    }
+  public List<String> getWhiteList() {
+    return whiteList;
+  }
+
+  public void setWhiteList(List<String> whiteList) {
+    this.whiteList = whiteList;
+  }
 
 }

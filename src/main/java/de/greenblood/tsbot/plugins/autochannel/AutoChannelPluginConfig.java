@@ -8,13 +8,14 @@ import java.util.List;
 @Component
 @ConfigurationProperties("autochannelplugin")
 public class AutoChannelPluginConfig {
-    private List<AutoChannelConfig> autoChannelList;
 
-    public List<AutoChannelConfig> getAutoChannelList() {
-        return autoChannelList;
-    }
+  private List<AutoChannelConfig> autoChannelList;
 
-    public void setAutoChannelList(List<AutoChannelConfig> autoChannelList) {
-        this.autoChannelList = autoChannelList;
-    }
+  public List<AutoChannelConfig> getAutoChannelList() {
+    return autoChannelList;
+  }
+
+  public void setAutoChannelList(List<AutoChannelConfig> autoChannelList) {
+    this.autoChannelList = autoChannelList;
+  }
 }

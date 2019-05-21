@@ -9,49 +9,49 @@ import java.util.List;
 @ConfigurationProperties("botconfig")
 public class TsBotConfig {
 
-    private String loginName;
-    private String loginPassword;
-    private String botNickname;
-    private List<String> tsBotPluginList;
-    private String botHomeChannel;
+  private String loginName;
+  private String loginPassword;
+  private String botNickname;
+  private List<String> tsBotPluginList;
+  private String botHomeChannel;
 
-    public String getLoginName() {
-        return loginName;
-    }
+  public String getLoginName() {
+    return loginName;
+  }
 
-    public String getLoginPassword() {
-        return loginPassword;
-    }
+  public String getLoginPassword() {
+    return loginPassword;
+  }
 
-    public String getBotNickname() {
-        return botNickname;
-    }
+  public String getBotNickname() {
+    return botNickname;
+  }
 
-    public List<String> getTsBotPluginList() {
-        return tsBotPluginList;
-    }
+  public List<String> getTsBotPluginList() {
+    return tsBotPluginList;
+  }
 
-    public void setLoginName(String loginName) {
-        this.loginName = loginName;
-    }
+  public void setLoginName(String loginName) {
+    this.loginName = loginName;
+  }
 
-    public void setLoginPassword(String loginPassword) {
-        this.loginPassword = loginPassword;
-    }
+  public void setLoginPassword(String loginPassword) {
+    this.loginPassword = loginPassword;
+  }
 
-    public void setBotNickname(String botNickname) {
-        this.botNickname = botNickname;
-    }
+  public void setBotNickname(String botNickname) {
+    this.botNickname = botNickname;
+  }
 
-    public void setTsBotPluginList(List<String> tsBotPluginList) {
-        this.tsBotPluginList = tsBotPluginList;
-    }
+  public void setTsBotPluginList(List<String> tsBotPluginList) {
+    this.tsBotPluginList = tsBotPluginList;
+  }
 
-    public String getBotHomeChannel() {
-        return botHomeChannel;
-    }
+  public String getBotHomeChannel() {
+    return botHomeChannel;
+  }
 
-    public void setBotHomeChannel(String botHomeChannel) {
-        this.botHomeChannel = botHomeChannel;
-    }
+  public void setBotHomeChannel(String botHomeChannel) {
+    this.botHomeChannel = botHomeChannel;
+  }
 }

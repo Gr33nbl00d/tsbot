@@ -12,90 +12,76 @@ import javax.validation.constraints.NotNull;
 @Component
 @ConfigurationProperties("serverconfig")
 @Validated
-public class TS3ServerConfig
-{
-    @NotNull
-    private int queryPort;
-    @NotNull
-    private int commandTimeout;
-    @NotNull
-    private boolean enableCommunicationsLogging;
-    @NotNull
-    private String host;
-    @NotNull
-    private int virtualServerIdentifier;
-    @NotNull
-    private boolean selectVirtualServerByPort;
-    @NotNull
-    private Integer floodRate;
+public class TS3ServerConfig {
 
-    public void setQueryPort(int queryPort)
-    {
-        this.queryPort = queryPort;
-    }
+  @NotNull
+  private int queryPort;
+  @NotNull
+  private int commandTimeout;
+  @NotNull
+  private boolean enableCommunicationsLogging;
+  @NotNull
+  private String host;
+  @NotNull
+  private int virtualServerIdentifier;
+  @NotNull
+  private boolean selectVirtualServerByPort;
+  @NotNull
+  private Integer floodRate;
 
-    public void setCommandTimeout(int commandTimeout)
-    {
-        this.commandTimeout = commandTimeout;
-    }
+  public void setQueryPort(int queryPort) {
+    this.queryPort = queryPort;
+  }
 
-    public void setEnableCommunicationsLogging(boolean enableCommunicationsLogging)
-    {
-        this.enableCommunicationsLogging = enableCommunicationsLogging;
-    }
+  public void setCommandTimeout(int commandTimeout) {
+    this.commandTimeout = commandTimeout;
+  }
 
-    public void setHost(String host)
-    {
-        this.host = host;
-    }
+  public void setEnableCommunicationsLogging(boolean enableCommunicationsLogging) {
+    this.enableCommunicationsLogging = enableCommunicationsLogging;
+  }
 
-    public int getQueryPort()
-    {
-        return queryPort;
-    }
+  public void setHost(String host) {
+    this.host = host;
+  }
 
-    public int getCommandTimeout()
-    {
-        return commandTimeout;
-    }
+  public int getQueryPort() {
+    return queryPort;
+  }
 
-    public boolean isEnableCommunicationsLogging()
-    {
-        return enableCommunicationsLogging;
-    }
+  public int getCommandTimeout() {
+    return commandTimeout;
+  }
 
-    public String getHost()
-    {
-        return host;
-    }
+  public boolean isEnableCommunicationsLogging() {
+    return enableCommunicationsLogging;
+  }
 
-    public int getVirtualServerIdentifier()
-    {
-        return virtualServerIdentifier;
-    }
+  public String getHost() {
+    return host;
+  }
 
-    public void setVirtualServerIdentifier(int virtualServerIdentifier)
-    {
-        this.virtualServerIdentifier = virtualServerIdentifier;
-    }
+  public int getVirtualServerIdentifier() {
+    return virtualServerIdentifier;
+  }
 
-    public boolean isSelectVirtualServerByPort()
-    {
-        return selectVirtualServerByPort;
-    }
+  public void setVirtualServerIdentifier(int virtualServerIdentifier) {
+    this.virtualServerIdentifier = virtualServerIdentifier;
+  }
 
-    public void setSelectVirtualServerByPort(boolean selectVirtualServerByPort)
-    {
-        this.selectVirtualServerByPort = selectVirtualServerByPort;
-    }
+  public boolean isSelectVirtualServerByPort() {
+    return selectVirtualServerByPort;
+  }
 
-    public Integer getFloodRate()
-    {
-        return this.floodRate;
-    }
+  public void setSelectVirtualServerByPort(boolean selectVirtualServerByPort) {
+    this.selectVirtualServerByPort = selectVirtualServerByPort;
+  }
 
-    public void setFloodRate(Integer floodRate)
-    {
-        this.floodRate = floodRate;
-    }
+  public Integer getFloodRate() {
+    return this.floodRate;
+  }
+
+  public void setFloodRate(Integer floodRate) {
+    this.floodRate = floodRate;
+  }
 }

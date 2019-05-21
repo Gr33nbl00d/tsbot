@@ -9,17 +9,15 @@ import java.util.List;
 @Component
 @ConfigurationProperties("greeterplugin")
 @Validated
-public class GreeterPluginConfig
-{
-    private List<String> greetingMessages;
+public class GreeterPluginConfig {
 
-    public List<String> getGreetingMessages()
-    {
-        return greetingMessages;
-    }
+  private List<String> greetingMessages;
 
-    public void setGreetingMessages(List<String> greetingMessages)
-    {
-        this.greetingMessages = greetingMessages;
-    }
+  public List<String> getGreetingMessages() {
+    return greetingMessages;
+  }
+
+  public void setGreetingMessages(List<String> greetingMessages) {
+    this.greetingMessages = greetingMessages;
+  }
 }

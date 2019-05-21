@@ -7,14 +7,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class BeanUtil implements ApplicationContextAware {
-    private ApplicationContext context;
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        context = applicationContext;
-    }
+  private ApplicationContext context;
 
-    public <T> T getBean(Class<T> beanClass) {
-        return context.getBean(beanClass);
-    }
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    context = applicationContext;
+  }
+
+  public <T> T getBean(Class<T> beanClass) {
+    return context.getBean(beanClass);
+  }
 }
