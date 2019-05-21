@@ -74,7 +74,7 @@ public class AutoChannelPlugin extends DefaultTsBotPlugin {
 
     newChannelName = messageFormattingUtil.formatNewChannel(autoChannelConfig.getNewChannelName(), client);
 
-    ChannelBase existingChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), newChannelName);
+    ChannelBase existingChannel = context.getApi().getChannelByNameExact(newChannelName, false);
     if (existingChannel != null) {
       context.getAsyncApi().editChannel(existingChannel.getId(), channelProperties);
     } else {
