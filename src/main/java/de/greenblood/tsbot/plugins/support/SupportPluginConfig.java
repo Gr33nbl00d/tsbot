@@ -48,7 +48,7 @@ public class SupportPluginConfig {
   public static class SupportChannelConfig {
 
     @NotNull
-    private String channelName;
+    private String channelSearchString;
     private List<Integer> serverGroupsToInform;
     @NotNull
     private String greetingMessage;
@@ -74,12 +74,12 @@ public class SupportPluginConfig {
       this.serverGroupsToIgnore = serverGroupsToIgnore;
     }
 
-    public String getChannelName() {
-      return channelName;
+    public String getChannelSearchString() {
+      return channelSearchString;
     }
 
-    public void setChannelName(String channelName) {
-      this.channelName = channelName;
+    public void setChannelSearchString(String channelSearchString) {
+      this.channelSearchString = channelSearchString;
     }
 
     public List<Integer> getServerGroupsToInform() {

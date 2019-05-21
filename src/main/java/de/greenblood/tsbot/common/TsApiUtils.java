@@ -5,10 +5,13 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TsApiUtils {
 
@@ -50,14 +53,39 @@ public class TsApiUtils {
     return (e.getTargetMode() == TextMessageTargetMode.CLIENT) && (e.getTargetClientId() == clientInfo.getId());
   }
 
-  public Channel findUniqueMandatoryChannel(TS3Api ts3Api, String channelSearchString, boolean useCache) {
-    List<Channel> matchingChannelList = ts3Api.getChannelsByName(channelSearchString);
-    if (matchingChannelList.size() > 1) {
-      throw new RuntimeException("more than one channel found matching string " + channelSearchString);
+  public ChannelBase findUniqueMandatoryChannel(TS3Api ts3Api, String channelSearchString) {
+    Pattern pattern = Pattern.compile("(NAMECONTAINS|NAMEEQUALS|CHANNELID)\\:(.*)");
+    Matcher matcher = pattern.matcher(channelSearchString);
+    if (matcher.matches()) {
+      String logic = matcher.group(1);
+      String parameter = matcher.group(2);
+      return findUniqueMandatoryChannel(ts3Api, logic, parameter);
+    } else {
+      throw new IllegalStateException("search string invalid: " + channelSearchString);
     }
-    if (matchingChannelList.size() == 0) {
-      throw new RuntimeException("No Channel found matching " + channelSearchString);
+  }
+
+  private ChannelBase findUniqueMandatoryChannel(TS3Api ts3Api, String logic, String parameter) {
+    if (logic.equals("NAMEEQUALS")) {
+      Channel channelByNameExact = ts3Api.getChannelByNameExact(parameter, false);
+      if (channelByNameExact == null) {
+        throw new IllegalStateException("Unable to find channel with name equal to " + parameter);
+      }
+      return channelByNameExact;
+    } else if (logic.equals("NAMECONTAINS")) {
+      List<Channel> matchingChannelList = ts3Api.getChannelsByName(parameter);
+      if (matchingChannelList.size() > 1) {
+        throw new RuntimeException("more than one channel found matching string " + parameter);
+      }
+      if (matchingChannelList.size() == 0) {
+        throw new RuntimeException("No Channel found matching " + parameter);
+      }
+      return matchingChannelList.get(0);
+
+    } else if (logic.equals("CHANNELID")) {
+      return ts3Api.getChannelInfo(Integer.parseInt(parameter));
+    } else {
+      throw new IllegalStateException("channel search logic " + logic + " unknown");
     }
-    return matchingChannelList.get(0);
   }
 }

@@ -2,8 +2,9 @@ package de.greenblood.tsbot.common;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class UserListCache {
 
@@ -37,16 +38,8 @@ public class UserListCache {
     this.invalidated = true;
   }
 
-  public List<Client> getFilteredClients(Ts3BotContext ts3BotContext, int maxAge, List<Integer> serverGroupsToInform) {
-    List<Client> filteredClients = new ArrayList<>();
+  public List<Client> getFilteredClients(Ts3BotContext ts3BotContext, int maxAge, Predicate<? super Client> filter) {
     List<Client> clients = this.getClients(ts3BotContext, maxAge);
-    for (Client client : clients) {
-      for (Integer serverGroup : serverGroupsToInform) {
-        if (client.isInServerGroup(serverGroup)) {
-          filteredClients.add(client);
-        }
-      }
-    }
-    return filteredClients;
+    return clients.stream().filter(filter).collect(Collectors.toList());
   }
 }

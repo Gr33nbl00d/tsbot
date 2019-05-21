@@ -13,7 +13,7 @@ public class TsBotConfig {
   private String loginPassword;
   private String botNickname;
   private List<String> tsBotPluginList;
-  private String botHomeChannel;
+  private String botHomeChannelSearchString;
 
   public String getLoginName() {
     return loginName;
@@ -47,11 +47,11 @@ public class TsBotConfig {
     this.tsBotPluginList = tsBotPluginList;
   }
 
-  public String getBotHomeChannel() {
-    return botHomeChannel;
+  public String getBotHomeChannelSearchString() {
+    return botHomeChannelSearchString;
   }
 
-  public void setBotHomeChannel(String botHomeChannel) {
-    this.botHomeChannel = botHomeChannel;
+  public void setBotHomeChannelSearchString(String botHomeChannelSearchString) {
+    this.botHomeChannelSearchString = botHomeChannelSearchString;
   }
 }

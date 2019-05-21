@@ -1,15 +1,13 @@
 package de.greenblood.tsbot.plugins.vpnprotection;
 
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
-import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
-import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
-import de.greenblood.tsbot.TsBotPlugin;
+import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.common.BeanUtil;
+import de.greenblood.tsbot.common.DefaultTsBotPlugin;
 import de.greenblood.tsbot.common.MessageFormattingUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListCheckResult;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListProvider;
 
@@ -19,16 +17,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-
 import java.util.HashSet;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class VpnProtectionPlugin implements TsBotPlugin {
+public class VpnProtectionPlugin extends DefaultTsBotPlugin {
 
   private Map<String, BlackListCheckResult> blackListCheckCache;
   private Ts3BotContext context;
@@ -40,9 +38,6 @@ public class VpnProtectionPlugin implements TsBotPlugin {
   private BlackListProvider blackListProvider;
   private Logger logger = LoggerFactory.getLogger(VpnProtectionPlugin.class);
   private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
-
-  public VpnProtectionPlugin() {
-  }
 
   @Override
   public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
@@ -65,11 +60,6 @@ public class VpnProtectionPlugin implements TsBotPlugin {
     }
   }
 
-  @Override
-  public void onTextMessage(Ts3BotContext context, TextMessageEvent e) {
-
-  }
-
   @PostConstruct
   public void postConstruct() {
     blackListCheckCache = new LRUMap<>(vpnProtectionPluginConfig.getIpCacheSize());
@@ -81,15 +71,5 @@ public class VpnProtectionPlugin implements TsBotPlugin {
     } catch (ClassNotFoundException e) {
       throw new IllegalStateException("black list provider not found: " + blackListProviderClassName, e);
     }
-  }
-
-  @Override
-  public void init(Ts3BotContext context) {
-    this.context = context;
-  }
-
-  @Override
-  public void onClientMoved(Ts3BotContext context, ClientMovedEvent e) {
-
   }
 }

@@ -5,6 +5,7 @@ import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
+import com.github.theholywaffle.teamspeak3.api.event.ClientLeaveEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
@@ -16,6 +17,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 
 import de.greenblood.tsbot.common.BeanUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
+import de.greenblood.tsbot.common.TsBotPlugin;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,6 +149,13 @@ public class Ts3Bot extends TS3EventAdapter {
   public void onClientMoved(ClientMovedEvent e) {
     for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
       tsBotPlugin.onClientMoved(context, e);
+    }
+  }
+
+  @Override
+  public void onClientLeave(ClientLeaveEvent e) {
+    for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
+      tsBotPlugin.onClientLeave(context, e);
     }
   }
 

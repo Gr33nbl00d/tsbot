@@ -3,9 +3,9 @@ package de.greenblood.tsbot.plugins.autochannel;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.NotNull;
-
 import java.util.List;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Created by Greenblood on 03.05.2019.
@@ -15,7 +15,7 @@ import java.util.List;
 public class AutoChannelConfig {
 
   @NotNull
-  private String channelName;
+  private String channelSearchString;
   @NotNull
   private boolean autoCreateOnJoin;
   @NotNull
@@ -42,12 +42,12 @@ public class AutoChannelConfig {
     this.autoCreateOnJoin = autoCreateOnJoin;
   }
 
-  public String getChannelName() {
-    return channelName;
+  public String getChannelSearchString() {
+    return channelSearchString;
   }
 
-  public void setChannelName(String channelName) {
-    this.channelName = channelName;
+  public void setChannelSearchString(String channelSearchString) {
+    this.channelSearchString = channelSearchString;
   }
 
   public String getNewChannelName() {

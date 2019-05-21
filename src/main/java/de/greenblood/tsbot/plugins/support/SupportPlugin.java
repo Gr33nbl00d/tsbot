@@ -4,14 +4,13 @@ import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
-import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
 import de.greenblood.tsbot.TsBotConfig;
-import de.greenblood.tsbot.TsBotPlugin;
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
+import de.greenblood.tsbot.common.DefaultTsBotPlugin;
 import de.greenblood.tsbot.common.MessageFormattingUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.common.TsApiUtils;
@@ -30,11 +29,11 @@ import java.util.Map;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class SupportPlugin implements TsBotPlugin {
+public class SupportPlugin extends DefaultTsBotPlugin {
 
   private static final Logger log = LoggerFactory.getLogger(SupportPlugin.class);
   private TsApiUtils tsApiUtils = new TsApiUtils();
-  private Channel registrationChannel;
+  private ChannelBase registrationChannel;
   @Autowired
   private SupportPluginConfig supportPluginConfig;
   @Autowired
@@ -57,7 +56,9 @@ public class SupportPlugin implements TsBotPlugin {
     List<Client>
         supportersToInform =
         UserListCache.getInstance()
-            .getFilteredClients(context, 30000, supportPluginConfig.getRegistrationChannelConfig().getServerGroupsToInform());
+            .getFilteredClients(context, 30000,
+                                new IncludedInServerGroupFilter(
+                                    supportPluginConfig.getRegistrationChannelConfig().getServerGroupsToInform()));
     sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
     asyncApi.moveClient(e.getClientId(), registrationChannel.getId());
 
@@ -83,26 +84,21 @@ public class SupportPlugin implements TsBotPlugin {
   }
 
   @Override
-  public void onTextMessage(Ts3BotContext context, TextMessageEvent e) {
-
-  }
-
-  @Override
   public void init(Ts3BotContext context) {
     SupportPluginConfig.RegistrationChannelConfig registrationChannelConfig = supportPluginConfig.getRegistrationChannelConfig();
     if (registrationChannelConfig != null) {
-      this.registrationChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), registrationChannelConfig.getChannelName(), true);
+      this.registrationChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), registrationChannelConfig.getChannelSearchString());
     }
 
-    if (botConfig.getBotHomeChannel() != null) {
-      Channel botHomeChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), botConfig.getBotHomeChannel(), true);
+    if (botConfig.getBotHomeChannelSearchString() != null) {
+      ChannelBase botHomeChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), botConfig.getBotHomeChannelSearchString());
       context.getApi().moveQuery(botHomeChannel);
     }
 
     List<SupportPluginConfig.SupportChannelConfig> supportChannels = supportPluginConfig.getSupportChannels();
     if (supportChannels != null) {
       for (SupportPluginConfig.SupportChannelConfig supportChannel : supportChannels) {
-        Channel channel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), supportChannel.getChannelName(), true);
+        ChannelBase channel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), supportChannel.getChannelSearchString());
         this.chanlIdTSupportChannelConfigMap.put(channel.getId(), supportChannel);
       }
     }
@@ -120,7 +116,8 @@ public class SupportPlugin implements TsBotPlugin {
       String message = messageFormattingUtil.format(supportChannelConfig.getSupporterMessage(), client);
       List<Client>
           supportersToInform =
-          UserListCache.getInstance().getFilteredClients(context, 30000, supportChannelConfig.getServerGroupsToInform());
+          UserListCache.getInstance()
+              .getFilteredClients(context, 30000, new IncludedInServerGroupFilter(supportChannelConfig.getServerGroupsToInform()));
       sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
       informSupporter(context, supportersToInform, message);
     }
