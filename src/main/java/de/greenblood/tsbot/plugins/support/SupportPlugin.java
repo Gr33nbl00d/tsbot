@@ -53,14 +53,15 @@ public class SupportPlugin extends DefaultTsBotPlugin {
         supportersToInform =
         ClientsOnlineRetriever.getInstance()
             .getFilteredClients(context, 30000,
-                                new IncludedInServerGroupFilter(
-                                    supportPluginConfig.getRegistrationChannelConfig().getServerGroupsToInform()));
+                    new IncludedInServerGroupFilter(
+                            supportPluginConfig.getRegistrationChannelConfig().getServerGroupsToInform()));
     sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
     asyncApi.moveClient(e.getClientId(), registrationChannel.getId());
 
     String message = supportPluginConfig.getRegistrationChannelConfig().getSupporterMessage();
 
-    informSupporter(context, supportersToInform, message);
+    message=new MessageFormatingBuilder().addClient(ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(),true)).build(message);
+            informSupporter(context, supportersToInform, message);
   }
 
   private void informSupporter(Ts3BotContext context, List<Client> supportersToInform, String message) {
@@ -78,7 +79,7 @@ public class SupportPlugin extends DefaultTsBotPlugin {
                                             supportPluginConfig.getRegistrationChannelConfig().getNoSuporterOnlineMessage());
     } else {
       context.getAsyncApi()
-          .sendTextMessage(TextMessageTargetMode.CLIENT, clientId, supportPluginConfig.getRegistrationChannelConfig().getGreetingMessage());
+              .sendTextMessage(TextMessageTargetMode.CLIENT, clientId, supportPluginConfig.getRegistrationChannelConfig().getGreetingMessage());
     }
   }
 
@@ -111,9 +112,9 @@ public class SupportPlugin extends DefaultTsBotPlugin {
           .addClient(client)
           .build(supportChannelConfig.getSupporterMessage());
       List<Client>
-          supportersToInform =
-          ClientsOnlineRetriever.getInstance()
-              .getFilteredClients(context, 30000, new IncludedInServerGroupFilter(supportChannelConfig.getServerGroupsToInform()));
+              supportersToInform =
+              ClientsOnlineRetriever.getInstance()
+                      .getFilteredClients(context, 30000, new IncludedInServerGroupFilter(supportChannelConfig.getServerGroupsToInform()));
       sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
       informSupporter(context, supportersToInform, message);
     }

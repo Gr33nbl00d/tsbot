@@ -180,7 +180,7 @@ public class UserListPlugin extends DefaultTsBotPlugin {
           .addClient(client)
           .build(entryHtmlTemplate);
 
-      entriesForServerGroup += htmlEntry;
+      entriesForServerGroup += htmlEntry+"\n";
     }
 
     return entriesForServerGroup;
