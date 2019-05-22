@@ -7,7 +7,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormattingUtil;
+import de.greenblood.tsbot.common.MessageFormatingBuilder;
 import de.greenblood.tsbot.common.Ts3BotContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,6 @@ public class GreeterPlugin extends DefaultTsBotPlugin {
 
   @Autowired
   private GreeterPluginConfig greeterPluginConfig;
-  private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
 
   @Override
   public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
@@ -31,7 +30,10 @@ public class GreeterPlugin extends DefaultTsBotPlugin {
     List<String> greetingMessages = greeterPluginConfig.getGreetingMessages();
     ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
     for (String greetingMessage : greetingMessages) {
-      asyncApi.sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), messageFormattingUtil.format(greetingMessage, clientInfo));
+      String message = new MessageFormatingBuilder()
+          .addClient(clientInfo)
+          .build(greetingMessage);
+      asyncApi.sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), message);
     }
   }
 

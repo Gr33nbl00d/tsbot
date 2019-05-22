@@ -7,11 +7,11 @@ import com.github.theholywaffle.teamspeak3.api.event.ClientLeaveEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
+import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormattingUtil;
+import de.greenblood.tsbot.common.MessageFormatingBuilder;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.common.TsApiUtils;
-import de.greenblood.tsbot.common.UserListCache;
 import de.greenblood.tsbot.plugins.support.IncludedInServerGroupFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +26,11 @@ import java.util.function.Predicate;
  */
 @Component
 public class UserCounterPlugin extends DefaultTsBotPlugin {
-  
+
   private final TsApiUtils tsApiUtils = new TsApiUtils();
 
   @Autowired
   private UserCounterPluginConfig userCounterPluginConfig;
-  private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
 
   @Override
   public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
@@ -45,6 +44,7 @@ public class UserCounterPlugin extends DefaultTsBotPlugin {
 
   @Override
   public void init(Ts3BotContext context) {
+    List<UserCounterPluginConfig.UserCounterConfig> userCounterList = userCounterPluginConfig.getUserCounterList();
     updateCounters(context);
   }
 
@@ -60,9 +60,11 @@ public class UserCounterPlugin extends DefaultTsBotPlugin {
       if (userCounterConfig.getServerGroupsToIgnore() != null) {
         filter = filter.and(new IncludedInServerGroupFilter(userCounterConfig.getServerGroupsToIgnore()).negate());
       }
-      int clients = UserListCache.getInstance().getFilteredClients(context, 0, filter).size();
+      int clients = ClientsOnlineRetriever.getInstance().getFilteredClients(context, 0, filter).size();
       String oldChannelName = channel.getName();
-      String newChannelName = messageFormattingUtil.formatNewChannel(userCounterConfig.getChannelNameTemplate(), clients);
+      String newChannelName = new MessageFormatingBuilder()
+          .addUserCount(clients)
+          .build(userCounterConfig.getChannelNameTemplate());
 
       if (oldChannelName.equals(newChannelName) == false) {
         context.getApi().editChannel(channel.getId(), ChannelProperty.CHANNEL_NAME, newChannelName);
@@ -99,7 +101,10 @@ public class UserCounterPlugin extends DefaultTsBotPlugin {
     String oldChannelName = onlineRecordChannel.getName();
     String channelNameTemplate = onlineRecordConfig.getChannelNameTemplate();
 
-    String newChannelName = messageFormattingUtil.formatNewChannel(channelNameTemplate, recordCountClientsNew);
+    String newChannelName = new MessageFormatingBuilder()
+        .addUserCount(recordCountClientsNew)
+        .build(channelNameTemplate);
+
     if (oldChannelName.equals(newChannelName) == false) {
       api.editChannel(onlineRecordChannel.getId(), ChannelProperty.CHANNEL_NAME, newChannelName);
     }

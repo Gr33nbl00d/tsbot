@@ -8,13 +8,12 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
-import de.greenblood.tsbot.TsBotConfig;
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
+import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormattingUtil;
+import de.greenblood.tsbot.common.MessageFormatingBuilder;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.common.TsApiUtils;
-import de.greenblood.tsbot.common.UserListCache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +35,7 @@ public class SupportPlugin extends DefaultTsBotPlugin {
   private ChannelBase registrationChannel;
   @Autowired
   private SupportPluginConfig supportPluginConfig;
-  @Autowired
-  private TsBotConfig botConfig;
   private Map<Integer, SupportPluginConfig.SupportChannelConfig> chanlIdTSupportChannelConfigMap = new HashMap<>();
-  private MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
 
   @Override
   public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
@@ -55,7 +51,7 @@ public class SupportPlugin extends DefaultTsBotPlugin {
   private void handleUnregisteredUser(Ts3BotContext context, ClientJoinEvent e, TS3ApiAsync asyncApi) {
     List<Client>
         supportersToInform =
-        UserListCache.getInstance()
+        ClientsOnlineRetriever.getInstance()
             .getFilteredClients(context, 30000,
                                 new IncludedInServerGroupFilter(
                                     supportPluginConfig.getRegistrationChannelConfig().getServerGroupsToInform()));
@@ -69,7 +65,10 @@ public class SupportPlugin extends DefaultTsBotPlugin {
 
   private void informSupporter(Ts3BotContext context, List<Client> supportersToInform, String message) {
     for (Client client : supportersToInform) {
-      context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, client.getId(), messageFormattingUtil.format(message, client));
+      message = new MessageFormatingBuilder()
+          .addClient(client)
+          .build(message);
+      context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, client.getId(), message);
     }
   }
 
@@ -90,11 +89,6 @@ public class SupportPlugin extends DefaultTsBotPlugin {
       this.registrationChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), registrationChannelConfig.getChannelSearchString());
     }
 
-    if (botConfig.getBotHomeChannelSearchString() != null) {
-      ChannelBase botHomeChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), botConfig.getBotHomeChannelSearchString());
-      context.getApi().moveQuery(botHomeChannel);
-    }
-
     List<SupportPluginConfig.SupportChannelConfig> supportChannels = supportPluginConfig.getSupportChannels();
     if (supportChannels != null) {
       for (SupportPluginConfig.SupportChannelConfig supportChannel : supportChannels) {
@@ -113,10 +107,12 @@ public class SupportPlugin extends DefaultTsBotPlugin {
         return;
       }
       ClientInfo client = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
-      String message = messageFormattingUtil.format(supportChannelConfig.getSupporterMessage(), client);
+      String message = new MessageFormatingBuilder()
+          .addClient(client)
+          .build(supportChannelConfig.getSupporterMessage());
       List<Client>
           supportersToInform =
-          UserListCache.getInstance()
+          ClientsOnlineRetriever.getInstance()
               .getFilteredClients(context, 30000, new IncludedInServerGroupFilter(supportChannelConfig.getServerGroupsToInform()));
       sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
       informSupporter(context, supportersToInform, message);

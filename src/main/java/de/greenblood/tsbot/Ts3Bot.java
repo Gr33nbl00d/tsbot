@@ -13,10 +13,12 @@ import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 
 import de.greenblood.tsbot.common.BeanUtil;
 import de.greenblood.tsbot.common.Ts3BotContext;
+import de.greenblood.tsbot.common.TsApiUtils;
 import de.greenblood.tsbot.common.TsBotPlugin;
 
 import org.slf4j.Logger;
@@ -44,6 +46,7 @@ public class Ts3Bot extends TS3EventAdapter {
   @Autowired
   private ApplicationContext applicationContext;
   private Logger logger = LoggerFactory.getLogger(Ts3Bot.class);
+  private TsApiUtils tsApiUtils = new TsApiUtils();
 
   public void connect() {
     TS3Config config = new TS3Config();
@@ -112,6 +115,11 @@ public class Ts3Bot extends TS3EventAdapter {
         return api;
       }
     };
+
+    if (config.getBotHomeChannelSearchString() != null) {
+      ChannelBase botHomeChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), config.getBotHomeChannelSearchString());
+      context.getApi().moveQuery(botHomeChannel);
+    }
 
     for (String pluginClassName : this.config.getTsBotPluginList()) {
       beanUtil.setApplicationContext(applicationContext);

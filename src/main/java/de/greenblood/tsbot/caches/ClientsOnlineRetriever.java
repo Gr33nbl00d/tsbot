@@ -1,22 +1,24 @@
-package de.greenblood.tsbot.common;
+package de.greenblood.tsbot.caches;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+
+import de.greenblood.tsbot.common.Ts3BotContext;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class UserListCache {
+public class ClientsOnlineRetriever {
 
-  private final static UserListCache instance = new UserListCache();
+  private final static ClientsOnlineRetriever instance = new ClientsOnlineRetriever();
   private long lastUpdateTime;
   private List<Client> clients;
   private boolean invalidated;
 
-  public UserListCache() {
+  public ClientsOnlineRetriever() {
   }
 
-  public static UserListCache getInstance() {
+  public static ClientsOnlineRetriever getInstance() {
     return instance;
   }
 
@@ -25,6 +27,7 @@ public class UserListCache {
     if (clients == null || invalidated == true || (currentTimeMillis - lastUpdateTime) > maxAge) {
       updateCache(context);
       this.invalidated = false;
+      this.lastUpdateTime = currentTimeMillis;
     }
     return clients;
   }

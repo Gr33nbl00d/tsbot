@@ -22,6 +22,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <!--<vaadin.version>13.0.7</vaadin.version>-->
     </properties>
 
     <profiles>
@@ -41,7 +42,19 @@
             </properties>
         </profile>
     </profiles>
-
+    <!--
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-bom</artifactId>
+                <version>${vaadin.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    -->
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -103,6 +116,13 @@
             <artifactId>hibernate-validator-annotation-processor</artifactId>
             <version>6.0.16.Final</version>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-spring-boot-starter</artifactId>
+            <version>${vaadin.version}</version>
+        </dependency>
+        -->
     </dependencies>
 
     <build>

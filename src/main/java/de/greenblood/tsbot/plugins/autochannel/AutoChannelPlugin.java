@@ -4,15 +4,14 @@ import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
+import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormattingUtil;
+import de.greenblood.tsbot.common.MessageFormatingBuilder;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.common.TsApiUtils;
-import de.greenblood.tsbot.caches.ClientInfoRetriever;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,6 @@ public class AutoChannelPlugin extends DefaultTsBotPlugin {
   private Map<String, ChannelBase> channelNameToParentChannelMap = new HashMap<>();
   private Map<String, String> commandChannelMap = new HashMap<>();
   private Map<Integer, AutoChannelConfig> channelIdToConfigMap = new HashMap<>();
-  private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
 
   @Override
   public void onTextMessage(Ts3BotContext context, TextMessageEvent e) {
@@ -71,8 +69,9 @@ public class AutoChannelPlugin extends DefaultTsBotPlugin {
     } else {
       channelProperties.put(ChannelProperty.CHANNEL_FLAG_MAXCLIENTS_UNLIMITED, "1");
     }
-
-    newChannelName = messageFormattingUtil.formatNewChannel(autoChannelConfig.getNewChannelName(), client);
+    newChannelName = new MessageFormatingBuilder()
+        .addClient(client)
+        .build(autoChannelConfig.getNewChannelName());
 
     ChannelBase existingChannel = context.getApi().getChannelByNameExact(newChannelName, false);
     if (existingChannel != null) {
@@ -105,16 +104,21 @@ public class AutoChannelPlugin extends DefaultTsBotPlugin {
       if (e.getTargetChannelId() == channel.getId()) {
         AutoChannelConfig config = this.channelIdToConfigMap.get(channel.getId());
         String commandName = config.getCommand();
+
         if (config.isAutoCreateOnJoin()) {
           createChannel(context, channel.getId(), e.getClientId(), null);
           for (String message : config.getAutoChannelCreatedMessages()) {
-            context.getAsyncApi()
-                .sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), messageFormattingUtil.formatCommand(message, commandName));
+            message = new MessageFormatingBuilder().addChatCommand(commandName).build(message);
+            context.getAsyncApi().sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), message);
           }
         } else {
           for (String message : config.getAutoChannelHelloMessages()) {
+            message = new MessageFormatingBuilder()
+                .addChatCommand(commandName)
+                .build(message);
+
             context.getAsyncApi()
-                .sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), messageFormattingUtil.formatCommand(message, commandName));
+                .sendTextMessage(TextMessageTargetMode.CLIENT, e.getClientId(), message);
           }
         }
         return;

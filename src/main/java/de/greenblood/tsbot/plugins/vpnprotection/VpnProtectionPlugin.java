@@ -6,7 +6,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.common.BeanUtil;
 import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormattingUtil;
+import de.greenblood.tsbot.common.MessageFormatingBuilder;
 import de.greenblood.tsbot.common.Ts3BotContext;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListCheckResult;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListProvider;
@@ -37,7 +37,6 @@ public class VpnProtectionPlugin extends DefaultTsBotPlugin {
   private BeanUtil beanUtil;
   private BlackListProvider blackListProvider;
   private Logger logger = LoggerFactory.getLogger(VpnProtectionPlugin.class);
-  private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
 
   @Override
   public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
@@ -55,8 +54,10 @@ public class VpnProtectionPlugin extends DefaultTsBotPlugin {
 
     if (blackListCheckResult.isBlackListed()) {
       logger.info("kicking client {} with ip {} because of black list", clientInfo.getNickname(), ip);
-      String kickMessage = messageFormattingUtil.format(vpnProtectionPluginConfig.getKickMessage(), clientInfo);
-      context.getAsyncApi().kickClientFromServer(kickMessage, e.getClientId());
+      String message = new MessageFormatingBuilder()
+          .addClient(clientInfo)
+          .build(vpnProtectionPluginConfig.getKickMessage());
+      context.getAsyncApi().kickClientFromServer(message, e.getClientId());
     }
   }
 

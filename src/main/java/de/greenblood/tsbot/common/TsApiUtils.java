@@ -15,8 +15,6 @@ import java.util.regex.Pattern;
 
 public class TsApiUtils {
 
-  private final MessageFormattingUtil messageFormattingUtil = new MessageFormattingUtil();
-
   public boolean isNotMessageFromMyself(TextMessageEvent e, ServerQueryInfo clientInfo) {
     return isMessageFromMyself(e, clientInfo) == false;
   }
