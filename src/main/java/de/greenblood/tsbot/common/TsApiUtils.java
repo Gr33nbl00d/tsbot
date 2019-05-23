@@ -73,10 +73,10 @@ public class TsApiUtils {
     } else if (logic.equals("NAMECONTAINS")) {
       List<Channel> matchingChannelList = ts3Api.getChannelsByName(parameter);
       if (matchingChannelList.size() > 1) {
-        throw new RuntimeException("more than one channel found matching string " + parameter);
+        throw new IllegalStateException("more than one channel found matching string " + parameter);
       }
       if (matchingChannelList.size() == 0) {
-        throw new RuntimeException("No Channel found matching " + parameter);
+        throw new IllegalStateException("No Channel found matching " + parameter);
       }
       return matchingChannelList.get(0);
 
