@@ -1,12 +1,14 @@
 package de.greenblood.tsbot.plugins.autochannel;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @ConfigurationProperties("autochannelplugin")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:autochannel.yml")
 public class AutoChannelPluginConfig {
 
   private List<AutoChannelConfig> autoChannelList;

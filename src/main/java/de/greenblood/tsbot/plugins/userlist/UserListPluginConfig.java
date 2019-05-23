@@ -1,6 +1,8 @@
 package de.greenblood.tsbot.plugins.userlist;
 
+import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -11,6 +13,7 @@ import javax.validation.constraints.NotNull;
 
 @Component
 @ConfigurationProperties("userlistplugin")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:userlist.yml")
 @Validated
 public class UserListPluginConfig {
 

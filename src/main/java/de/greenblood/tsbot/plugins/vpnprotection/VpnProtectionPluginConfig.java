@@ -1,6 +1,8 @@
 package de.greenblood.tsbot.plugins.vpnprotection;
 
+import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -10,6 +12,7 @@ import java.util.List;
 
 @Component
 @ConfigurationProperties("vpnprotectionplugin")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:vpnprotection.yml")
 @Validated
 public class VpnProtectionPluginConfig {
 

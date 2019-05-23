@@ -1,6 +1,8 @@
 package de.greenblood.tsbot.plugins.greeter;
 
+import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -8,6 +10,7 @@ import java.util.List;
 
 @Component
 @ConfigurationProperties("greeterplugin")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:greeter.yml")
 @Validated
 public class GreeterPluginConfig {
 
