@@ -1,4 +1,4 @@
-package de.greenblood.tsbot;
+package de.greenblood.tsbot.database;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

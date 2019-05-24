@@ -1,7 +1,8 @@
-package de.greenblood.tsbot;
+package de.greenblood.tsbot.database;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.stereotype.Component;
+
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Objects;
@@ -9,6 +10,7 @@ import java.util.Objects;
 @javax.persistence.Entity
 
 @Table(name = "users")
+@Component
 public class Users {
 
   @Id
@@ -24,6 +26,7 @@ public class Users {
     this.username = username;
   }
 
+  @JsonIgnore
   public String getPassword() {
     return password;
   }
