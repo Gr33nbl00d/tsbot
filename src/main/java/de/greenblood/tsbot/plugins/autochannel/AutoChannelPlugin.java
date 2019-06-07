@@ -8,10 +8,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
-import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.common.TsApiUtils;
+import de.greenblood.tsbot.common.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,14 +23,15 @@ import java.util.regex.Pattern;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class AutoChannelPlugin extends DefaultTsBotPlugin {
+@TsBotPlugin
+public class AutoChannelPlugin extends UpdatableTsBotPlugin<AutoChannelPluginConfig> {
 
   private TsApiUtils tsApiUtils = new TsApiUtils();
   @Autowired
   private AutoChannelPluginConfig autoChannelPluginConfig;
-  private Map<String, ChannelBase> channelNameToParentChannelMap = new HashMap<>();
-  private Map<String, String> commandChannelMap = new HashMap<>();
-  private Map<Integer, AutoChannelConfig> channelIdToConfigMap = new HashMap<>();
+  private Map<String, ChannelBase> channelNameToParentChannelMap;
+  private Map<String, String> commandChannelMap;
+  private Map<Integer, AutoChannelConfig> channelIdToConfigMap;
 
   @Override
   public void onTextMessage(Ts3BotContext context, TextMessageEvent e) {
@@ -88,6 +86,9 @@ public class AutoChannelPlugin extends DefaultTsBotPlugin {
 
   @Override
   public void init(Ts3BotContext context) {
+    channelNameToParentChannelMap= new HashMap<>();
+    commandChannelMap= new HashMap<>();
+    channelIdToConfigMap= new HashMap<>();
     List<AutoChannelConfig> autoChannelList = this.autoChannelPluginConfig.getAutoChannelList();
     for (AutoChannelConfig autoChannelConfig : autoChannelList) {
       String channelName = autoChannelConfig.getChannelSearchString();
@@ -126,4 +127,13 @@ public class AutoChannelPlugin extends DefaultTsBotPlugin {
     }
   }
 
+  @Override
+  public Class<AutoChannelPluginConfig> getConfigClass() {
+    return AutoChannelPluginConfig.class;
+  }
+
+  @Override
+  public void reloadPlugin(Ts3BotContext context) {
+      init(context);
+  }
 }

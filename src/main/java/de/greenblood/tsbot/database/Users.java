@@ -1,14 +1,14 @@
 package de.greenblood.tsbot.database;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @javax.persistence.Entity
-
 @Table(name = "users")
 @Component
 public class Users {
@@ -17,6 +17,16 @@ public class Users {
   private String username;
   private String password;
   private boolean enabled;
+  @OneToMany(mappedBy = "username")
+  private List<Authorities> authorities;
+
+  public List<Authorities> getAuthorities() {
+    return authorities;
+  }
+
+  public void setAuthorities(List<Authorities> authorities) {
+    this.authorities = authorities;
+  }
 
   public String getUsername() {
     return username;
@@ -31,6 +41,7 @@ public class Users {
     return password;
   }
 
+  @JsonProperty
   public void setPassword(String password) {
     this.password = password;
   }

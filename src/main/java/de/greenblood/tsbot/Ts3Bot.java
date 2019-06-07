@@ -16,10 +16,7 @@ import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 
-import de.greenblood.tsbot.common.BeanUtil;
-import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.common.TsApiUtils;
-import de.greenblood.tsbot.common.TsBotPlugin;
+import de.greenblood.tsbot.common.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +37,7 @@ public class Ts3Bot extends TS3EventAdapter {
   @Autowired
   private TS3ServerConfig serverConfig;
   private Ts3BotContext context;
-  private List<TsBotPlugin> tsBotPluginList = new ArrayList();
+  private List<TsBotPluginInterface> tsBotPluginList = new ArrayList();
   @Autowired
   private BeanUtil beanUtil;
   @Autowired
@@ -125,13 +122,13 @@ public class Ts3Bot extends TS3EventAdapter {
       beanUtil.setApplicationContext(applicationContext);
       try {
         Object bean = beanUtil.getBean(Class.forName(pluginClassName));
-        this.tsBotPluginList.add((TsBotPlugin) bean);
+        this.tsBotPluginList.add((TsBotPluginInterface) bean);
       } catch (ClassNotFoundException e) {
         throw new RuntimeException("plugin not found " + pluginClassName, e);
       }
     }
 
-    for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
+    for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
       tsBotPlugin.init(context);
     }
   }
@@ -139,7 +136,7 @@ public class Ts3Bot extends TS3EventAdapter {
 
   @Override
   public void onClientJoin(ClientJoinEvent e) {
-    for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
+    for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
       tsBotPlugin.onClientJoin(context, e);
     }
   }
@@ -147,7 +144,7 @@ public class Ts3Bot extends TS3EventAdapter {
 
   @Override
   public void onTextMessage(TextMessageEvent e) {
-    for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
+    for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
       tsBotPlugin.onTextMessage(context, e);
     }
 
@@ -155,20 +152,23 @@ public class Ts3Bot extends TS3EventAdapter {
 
   @Override
   public void onClientMoved(ClientMovedEvent e) {
-    for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
+    for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
       tsBotPlugin.onClientMoved(context, e);
     }
   }
 
   @Override
   public void onClientLeave(ClientLeaveEvent e) {
-    for (TsBotPlugin tsBotPlugin : this.getTsBotPluginList()) {
+    for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
       tsBotPlugin.onClientLeave(context, e);
     }
   }
 
-  public List<TsBotPlugin> getTsBotPluginList() {
+  public List<TsBotPluginInterface> getTsBotPluginList() {
     return tsBotPluginList;
   }
 
+  public void reloadPlugin(UpdatableTsBotPlugin plugin) {
+    plugin.reloadPlugin(context);
+  }
 }

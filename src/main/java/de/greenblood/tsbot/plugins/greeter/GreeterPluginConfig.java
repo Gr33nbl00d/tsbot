@@ -1,5 +1,6 @@
 package de.greenblood.tsbot.plugins.greeter;
 
+import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
@@ -12,7 +13,7 @@ import java.util.List;
 @ConfigurationProperties("greeterplugin")
 @PropertySource(factory = YamlPropertySourceFactory.class, value = "file:greeter.yml")
 @Validated
-public class GreeterPluginConfig {
+public class GreeterPluginConfig implements UpdateablePluginConfig<GreeterPluginConfig>{
 
   private List<String> greetingMessages;
 
@@ -22,5 +23,10 @@ public class GreeterPluginConfig {
 
   public void setGreetingMessages(List<String> greetingMessages) {
     this.greetingMessages = greetingMessages;
+  }
+
+  @Override
+  public void update(GreeterPluginConfig greeterPluginConfig) {
+    this.greetingMessages=greeterPluginConfig.getGreetingMessages();
   }
 }

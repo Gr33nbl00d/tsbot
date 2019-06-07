@@ -6,11 +6,10 @@ import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
-import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
+import de.greenblood.tsbot.common.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,7 +18,8 @@ import java.util.List;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class GreeterPlugin extends DefaultTsBotPlugin {
+@TsBotPlugin
+public class GreeterPlugin extends UpdatableTsBotPlugin<GreeterPluginConfig> {
 
   @Autowired
   private GreeterPluginConfig greeterPluginConfig;
@@ -37,4 +37,13 @@ public class GreeterPlugin extends DefaultTsBotPlugin {
     }
   }
 
+  @Override
+  public Class<GreeterPluginConfig> getConfigClass() {
+    return GreeterPluginConfig.class;
+  }
+
+  @Override
+  public void reloadPlugin(Ts3BotContext context) {
+
+  }
 }

@@ -10,10 +10,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
-import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.common.TsApiUtils;
+import de.greenblood.tsbot.common.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +25,8 @@ import java.util.Map;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class SupportPlugin extends DefaultTsBotPlugin {
+@TsBotPlugin
+public class SupportPlugin extends DefaultTsBotPlugin<SupportPluginConfig> {
 
   private static final Logger log = LoggerFactory.getLogger(SupportPlugin.class);
   private TsApiUtils tsApiUtils = new TsApiUtils();
@@ -118,6 +116,11 @@ public class SupportPlugin extends DefaultTsBotPlugin {
       sendWelcomeMessageToNewUser(context, e.getClientId(), supportersToInform);
       informSupporter(context, supportersToInform, message);
     }
+  }
+
+  @Override
+  public Class<SupportPluginConfig> getConfigClass() {
+    return SupportPluginConfig.class;
   }
 
   private boolean isClientInServerGroupsToInform(Ts3BotContext context, ClientMovedEvent e,

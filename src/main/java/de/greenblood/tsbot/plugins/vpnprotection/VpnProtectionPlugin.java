@@ -4,10 +4,7 @@ import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
-import de.greenblood.tsbot.common.BeanUtil;
-import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
+import de.greenblood.tsbot.common.*;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListCheckResult;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListProvider;
 
@@ -26,7 +23,8 @@ import javax.annotation.PostConstruct;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class VpnProtectionPlugin extends DefaultTsBotPlugin {
+@TsBotPlugin
+public class VpnProtectionPlugin extends DefaultTsBotPlugin<VpnProtectionPluginConfig> {
 
   private Map<String, BlackListCheckResult> blackListCheckCache;
   private Ts3BotContext context;
@@ -59,6 +57,11 @@ public class VpnProtectionPlugin extends DefaultTsBotPlugin {
           .build(vpnProtectionPluginConfig.getKickMessage());
       context.getAsyncApi().kickClientFromServer(message, e.getClientId());
     }
+  }
+
+  @Override
+  public Class<VpnProtectionPluginConfig> getConfigClass() {
+    return VpnProtectionPluginConfig.class;
   }
 
   @PostConstruct

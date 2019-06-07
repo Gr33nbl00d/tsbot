@@ -9,10 +9,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroupClient;
 
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.caches.ServerGroupClientsRetriever;
-import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.common.TsApiUtils;
+import de.greenblood.tsbot.common.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +27,8 @@ import java.util.Map;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class UserListPlugin extends DefaultTsBotPlugin {
+@TsBotPlugin
+public class UserListPlugin extends DefaultTsBotPlugin<UserListPluginConfig> {
 
   @Autowired(required = false)
   private UserListPluginConfig userListPluginConfig;
@@ -108,6 +106,10 @@ public class UserListPlugin extends DefaultTsBotPlugin {
     }
   }
 
+  @Override
+  public Class<UserListPluginConfig> getConfigClass() {
+    return UserListPluginConfig.class;
+  }
 
   private void updateUserLists(Ts3BotContext context) {
     List<Client> clientsOnline = ClientsOnlineRetriever.getInstance().getClients(context, 0);

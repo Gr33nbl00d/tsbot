@@ -8,10 +8,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
-import de.greenblood.tsbot.common.DefaultTsBotPlugin;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.common.TsApiUtils;
+import de.greenblood.tsbot.common.*;
 import de.greenblood.tsbot.plugins.support.IncludedInServerGroupFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,8 @@ import java.util.function.Predicate;
  * Created by Greenblood on 14.04.2019.
  */
 @Component
-public class UserCounterPlugin extends DefaultTsBotPlugin {
+@TsBotPlugin
+public class UserCounterPlugin extends DefaultTsBotPlugin<UserCounterPluginConfig> {
 
   private final TsApiUtils tsApiUtils = new TsApiUtils();
 
@@ -41,6 +39,12 @@ public class UserCounterPlugin extends DefaultTsBotPlugin {
   public void onClientLeave(Ts3BotContext context, ClientLeaveEvent e) {
     updateCounters(context);
   }
+
+  @Override
+  public Class<UserCounterPluginConfig> getConfigClass() {
+    return UserCounterPluginConfig.class;
+  }
+
 
   @Override
   public void init(Ts3BotContext context) {
