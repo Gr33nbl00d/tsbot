@@ -3,9 +3,8 @@ package de.greenblood.tsbot.plugins.autochannel;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by Greenblood on 03.05.2019.

@@ -6,12 +6,10 @@ import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientLeaveEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
-
 import de.greenblood.tsbot.Ts3Bot;
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.common.*;
 import de.greenblood.tsbot.plugins.support.IncludedInServerGroupFilter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,12 +2,10 @@ package de.greenblood.tsbot.plugins.vpnprotection;
 
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
-
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.common.*;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListCheckResult;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListProvider;
-
 import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Created by Greenblood on 14.04.2019.

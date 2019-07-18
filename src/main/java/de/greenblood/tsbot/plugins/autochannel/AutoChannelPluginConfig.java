@@ -1,6 +1,5 @@
 package de.greenblood.tsbot.plugins.autochannel;
 
-import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
 import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;

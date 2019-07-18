@@ -1,7 +1,5 @@
 package de.greenblood.tsbot.plugins.support;
 
-import de.greenblood.tsbot.common.TsBotPlugin;
-import de.greenblood.tsbot.plugins.autochannel.AutoChannelPluginConfig;
 import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -9,9 +7,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Component
 @ConfigurationProperties("supportplugin")

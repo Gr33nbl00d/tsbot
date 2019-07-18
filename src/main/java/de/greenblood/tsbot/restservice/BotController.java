@@ -3,13 +3,12 @@ package de.greenblood.tsbot.restservice;
 import de.greenblood.tsbot.Ts3Bot;
 import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
-import de.greenblood.tsbot.database.Authorities;
-import de.greenblood.tsbot.database.AuthoritiesRepository;
-import de.greenblood.tsbot.database.Users;
-import de.greenblood.tsbot.database.UsersRepository;
+import de.greenblood.tsbot.database.*;
 import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
 import de.greenblood.tsbot.restservice.security.SpringBootSecurityManager;
 import de.greenblood.tsbot.restservice.security.UserDetailsAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -26,7 +25,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
@@ -47,34 +45,45 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @RestController
 @Component
 public class BotController {
-    private static final String DEFAULT_USER = "odysseus";
-    private static final CharSequence DEFAULT_USER_PASSWORD = "odysseus";
-    @Autowired
-    UsersRepository usersRepository;
-    @Autowired
-    AuthoritiesRepository authoritiesRepository;
+    private static final Logger log = LoggerFactory.getLogger(BotController.class);
     @Autowired
     ApplicationContext applicationContext;
     @Autowired
     Ts3Bot ts3Bot;
+    @Autowired
+    DefaultUserCreater defaultUserCreater;
+    @Autowired
+    UserManager userManager;
+    @Autowired
+    SpringBootSecurityManager springBootSecurityManager;
 
     @PostConstruct
     public void postConstruct() {
-        if (usersRepository.findById(DEFAULT_USER).isPresent() == false) {
-            Authorities o = new Authorities();
-            o.setUsername(DEFAULT_USER);
-            o.setAuthority("adminrole");
 
-            Users user = new Users();
-            user.setAuthorities(Collections.singletonList(o));
-            user.setUsername(DEFAULT_USER);
-            user.setPassword(new BCryptPasswordEncoder().encode(DEFAULT_USER_PASSWORD));
-            this.saveUser(user);
+        if (isFirstBotStart()) {
+            defaultUserCreater.createDefaultUser();
+        }
+    }
+
+    private boolean isFirstBotStart() {
+        Path path = Paths.get("init.dat");
+        if (Files.exists(path))
+            return false;
+        else {
+            try {
+
+                Files.write(path, Collections.singleton("1"), Charset.forName("US-ASCII"));
+                return true;
+            } catch (IOException e) {
+                log.error("error writing init.dat", e);
+                return true;
+            }
         }
     }
 
@@ -83,15 +92,15 @@ public class BotController {
     @ResponseBody
     Iterable<Users> getUsers() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (isAdmin(auth)) {
-            return usersRepository.findAll();
+        if (isUserMaintainer(auth)) {
+            return userManager.getAllUsers();
         } else {
             throw new AccessDeniedException("access denied");
         }
     }
 
-    private boolean isAdmin(Authentication auth) {
-        return hasAuthority(auth, "adminrole");
+    private boolean isUserMaintainer(Authentication auth) {
+        return hasAuthority(auth, "user_maintainer");
     }
 
     private boolean hasAuthority(Authentication auth, String authorityString) {
@@ -108,48 +117,22 @@ public class BotController {
     @RequestMapping(path = "/odysseus/api/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Object> addUser(@RequestBody Users user) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (isAdmin(auth)) {
-            saveUser(user);
+        if (isUserMaintainer(auth)) {
+            userManager.saveUser(user);
             return ResponseEntity.status(HttpStatus.OK).build();
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
-    private void saveUser(@RequestBody Users user) {
-        if (usersRepository.findById(user.getUsername()).isPresent() == false) {
-            usersRepository.save(user);
-
-            List<Authorities> authorities = user.getAuthorities();
-            for (Authorities authority : authorities) {
-                authority.setUsername(user.getUsername());
-            }
-            authoritiesRepository.saveAll(authorities);
-        } else {
-            throw new UserAlreadyExistsException("user " + user.getUsername() + " does already exist");
-        }
-    }
 
     @Transactional
     @RequestMapping(path = "/odysseus/api/users/{username}", method = RequestMethod.PATCH, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<Object> changeUserRights(@PathVariable("username") String userName, @RequestBody List<Authorities> newAuthorities) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (isAdmin(auth)) {
+        if (isUserMaintainer(auth)) {
 
-            //Users user = usersRepository.findById(userName).orElseThrow(() -> new UserNotFoundException("user " + userName + " does not exist"));
-
-
-            List<String> allAuthorities = getAllAuthorities();
-            for (Authorities authority : newAuthorities) {
-                if (allAuthorities.contains(authority.getAuthority()) == false) {
-                    throw new UnknownAuthorityException("authority unknown: " + authority.getAuthority());
-                }
-                authority.setUsername(userName);
-            }
-
-            authoritiesRepository.deleteAllFromUserName(userName);
-            authoritiesRepository.saveAll(newAuthorities);
-
+            userManager.updateUserRights(userName, newAuthorities);
             return ResponseEntity.status(HttpStatus.OK).build();
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -160,10 +143,9 @@ public class BotController {
     @RequestMapping(path = "/odysseus/api/users/{username}", method = RequestMethod.DELETE)
     public ResponseEntity<Object> deleteUser(@PathVariable("username") String userName) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (isAdmin(auth)) {
-            if (usersRepository.findById(userName).isPresent()) {
-                authoritiesRepository.deleteAllFromUserName(userName);
-                usersRepository.deleteById(userName);
+        if (isUserMaintainer(auth)) {
+            if (userManager.doesUserExist(userName)) {
+                userManager.deleteUser(userName);
             } else {
                 throw new UserNotFoundException("user " + userName + " does not exist");
             }
@@ -177,9 +159,8 @@ public class BotController {
     @RequestMapping(path = "/odysseus/api/users", method = RequestMethod.DELETE, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<Object> deleteUser(@RequestBody Users user) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (isAdmin(auth)) {
-            Users userInDB = usersRepository.findById(user.getUsername()).orElseThrow(() -> new UserNotFoundException("user " + user.getUsername() + " not found"));
-            usersRepository.delete(userInDB);
+        if (isUserMaintainer(auth)) {
+            userManager.deleteUser(user.getUsername());
             return ResponseEntity.status(HttpStatus.OK).build();
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -284,19 +265,6 @@ public class BotController {
         throw new UnknownPluginException("Plugin with name " + configName + " was not found");
     }
 
-    private List<UpdatableTsBotPlugin> getAllActivePlugins() {
-        AutowireCapableBeanFactory autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
-        ListableBeanFactory listableBeanFactory = (ListableBeanFactory) autowireCapableBeanFactory;
-        Map<String, Object> beansWithAnnotation = listableBeanFactory.getBeansWithAnnotation(TsBotPlugin.class);
-        ArrayList<UpdatableTsBotPlugin> tsBotPlugins = new ArrayList<>();
-        for (Object value : beansWithAnnotation.values()) {
-            if (value instanceof UpdatableTsBotPlugin) {
-                tsBotPlugins.add((UpdatableTsBotPlugin) value);
-            }
-        }
-        return tsBotPlugins;
-    }
-
     @RequestMapping(path = "/odysseus/api/loggedinuser", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public @ResponseBody
     Users getLoggedInUser() {
@@ -310,28 +278,9 @@ public class BotController {
     @RequestMapping(path = "/odysseus/api/roles", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public @ResponseBody
     List<String> getAllAuthorities() {
-        ArrayList<String> allRoles = new ArrayList<>();
-        allRoles.add("adminrole");
-        List<UpdatableTsBotPlugin> allActivePlugins = getAllActivePlugins();
-        for (UpdatableTsBotPlugin allActivePlugin : allActivePlugins) {
-            allRoles.add(allActivePlugin.getReadWriteAuthorityName());
-        }
-        return allRoles;
+        return userManager.getAllAuthorities();
     }
 
-    /*
-    @RequestMapping(path = "/odysseus/api/logout", method = RequestMethod.POST)
-    public ResponseEntity logout() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null){
-            //new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-        //SecurityContextHolder.getContext().setAuthentication(null);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-*/
-    @Autowired
-    SpringBootSecurityManager springBootSecurityManager;
 
     @RequestMapping(path = "/odysseus/api/logout", method = RequestMethod.POST)
     public ResponseEntity login(@Autowired HttpServletResponse response, @Autowired HttpServletRequest request) {

@@ -1,12 +1,10 @@
 package de.greenblood.tsbot.restservice.security;
 
-import de.greenblood.tsbot.database.Authorities;
 import de.greenblood.tsbot.database.Users;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 public class UserDetailsAdapter implements UserDetails {
     private Users user;

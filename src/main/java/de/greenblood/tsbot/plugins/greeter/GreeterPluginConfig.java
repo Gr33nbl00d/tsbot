@@ -1,6 +1,5 @@
 package de.greenblood.tsbot.plugins.greeter;
 
-import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;

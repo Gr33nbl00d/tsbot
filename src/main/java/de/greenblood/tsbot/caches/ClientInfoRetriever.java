@@ -1,7 +1,6 @@
 package de.greenblood.tsbot.caches;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
-
 import de.greenblood.tsbot.common.Ts3BotContext;
 
 public class ClientInfoRetriever extends TsExpiringCacheObjectRetriever<Integer, ClientInfo> {

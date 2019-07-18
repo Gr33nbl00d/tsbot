@@ -1,7 +1,6 @@
 package de.greenblood.tsbot.caches;
 
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelInfo;
-
 import de.greenblood.tsbot.common.Ts3BotContext;
 
 public class ChannelRetriever extends TsExpiringCacheObjectRetriever<Integer, ChannelInfo> {

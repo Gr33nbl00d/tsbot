@@ -9,12 +9,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +37,7 @@ public class BotStarter implements CommandLineRunner, WebMvcConfigurer {
     public void run(String... strings) throws Exception {
 
         List<GrantedAuthority> permissions = new ArrayList();
-        permissions.add(new SimpleGrantedAuthority("adminrole"));
+        permissions.add(new SimpleGrantedAuthority("user_maintainer"));
 
 
         boolean connected = false;

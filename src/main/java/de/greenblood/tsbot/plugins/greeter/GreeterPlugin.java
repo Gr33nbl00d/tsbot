@@ -4,12 +4,12 @@ import com.github.theholywaffle.teamspeak3.TS3ApiAsync;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
-
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
-import de.greenblood.tsbot.common.*;
-
+import de.greenblood.tsbot.common.MessageFormatingBuilder;
+import de.greenblood.tsbot.common.Ts3BotContext;
+import de.greenblood.tsbot.common.TsBotPlugin;
+import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
