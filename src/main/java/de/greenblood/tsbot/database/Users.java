@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,10 +15,12 @@ import java.util.Objects;
 public class Users {
 
   @Id
+  @Column(name = "username", nullable = false, unique = true)
   private String username;
+  @Column(name = "password", nullable = false)
+  @NotNull
   private String password;
-  private boolean enabled;
-  @OneToMany(mappedBy = "username")
+  @OneToMany(mappedBy = "username",fetch = FetchType.EAGER)
   private List<Authorities> authorities;
 
   public List<Authorities> getAuthorities() {
@@ -46,14 +49,6 @@ public class Users {
     this.password = password;
   }
 
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -72,7 +67,6 @@ public class Users {
     return "Users{" +
             "username='" + username + '\'' +
             ", password='" + password + '\'' +
-            ", enabled=" + enabled +
             '}';
   }
 }

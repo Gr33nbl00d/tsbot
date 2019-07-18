@@ -136,4 +136,9 @@ public class AutoChannelPlugin extends UpdatableTsBotPlugin<AutoChannelPluginCon
   public void reloadPlugin(Ts3BotContext context) {
       init(context);
   }
+
+  @Override
+  public String getReadWriteAuthorityName() {
+    return "autochannel_maintainer";
+  }
 }

@@ -46,4 +46,9 @@ public class GreeterPlugin extends UpdatableTsBotPlugin<GreeterPluginConfig> {
   public void reloadPlugin(Ts3BotContext context) {
 
   }
+
+  @Override
+  public String getReadWriteAuthorityName() {
+    return "greeter_maintainer";
+  }
 }

@@ -16,6 +16,8 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
@@ -24,44 +26,37 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-public class BasicConfiguration extends WebSecurityConfigurerAdapter {
+public class SpringBootSecurityManager extends WebSecurityConfigurerAdapter {
     private static final String DEFAULT_ADMIN_USER = "admin";
     private static final CharSequence DEFAULT_ADMIN_PASSWORD = "admin";
-    @Autowired
-    DataSource dataSource;
 
     @Bean
     public UserDetailsService userDetailsService() {
 
-        /*
-        User.UserBuilder users = User.withDefaultPasswordEncoder();
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(users.username("user").password("password").roles("USER").build());
-        manager.createUser(users.username("admin").password("password").roles("USER", "ADMIN").build());
-        return manager;*/
-        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
-
-
-        List<GrantedAuthority> permissions = new ArrayList();
-        permissions.add(new SimpleGrantedAuthority("adminrole"));
-        if (jdbcUserDetailsManager.userExists(DEFAULT_ADMIN_USER) == false) {
-            String encoded = new BCryptPasswordEncoder().encode(DEFAULT_ADMIN_PASSWORD);
-            jdbcUserDetailsManager.createUser(new User(DEFAULT_ADMIN_USER, encoded, permissions));
-        }
-        return jdbcUserDetailsManager;
-
-
+        return new MyUserDetailsService();
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .anyRequest()
-                .authenticated()
+                .antMatchers("/favicon.ico", "/static-css/**", "/locales/**", "/img/**", "/fonts/**", "/client.js", "/vendor.js", "/index.html", "/", "/odysseus/api/login").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .csrf().disable()
-                .httpBasic();
+                .logout().invalidateHttpSession(true)
+                .and()
+                .formLogin()
+                .successHandler(new AuthenticationSuccessHandler())
+                .failureHandler(new SimpleUrlAuthenticationFailureHandler())
+                .and()
+                .logout()
+                .logoutSuccessHandler(new SPALogoutSuccessHandler())
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(new Http403ForbiddenEntryPoint());
+
+
     }
 
     @Override

@@ -1,6 +1,9 @@
 package de.greenblood.tsbot.plugins.support;
 
+import de.greenblood.tsbot.common.TsBotPlugin;
+import de.greenblood.tsbot.plugins.autochannel.AutoChannelPluginConfig;
 import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
+import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -14,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @ConfigurationProperties("supportplugin")
 @PropertySource(factory = YamlPropertySourceFactory.class, value = "file:support.yml")
 @Validated
-public class SupportPluginConfig {
+public class SupportPluginConfig implements UpdateablePluginConfig<SupportPluginConfig> {
 
   private RegistrationChannelConfig registrationChannelConfig;
   private List<SupportChannelConfig> supportChannels;
@@ -33,6 +36,12 @@ public class SupportPluginConfig {
 
   public void setSupportChannels(List<SupportChannelConfig> supportChannels) {
     this.supportChannels = supportChannels;
+  }
+
+  @Override
+  public void update(SupportPluginConfig supportPluginConfig) {
+    this.registrationChannelConfig = supportPluginConfig.registrationChannelConfig;
+    this.supportChannels=supportPluginConfig.supportChannels;
   }
 
   public static class RegistrationChannelConfig extends SupportChannelConfig {

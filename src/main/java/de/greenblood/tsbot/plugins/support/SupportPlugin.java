@@ -26,7 +26,7 @@ import java.util.Map;
  */
 @Component
 @TsBotPlugin
-public class SupportPlugin extends DefaultTsBotPlugin<SupportPluginConfig> {
+public class SupportPlugin extends UpdatableTsBotPlugin<SupportPluginConfig> {
 
   private static final Logger log = LoggerFactory.getLogger(SupportPlugin.class);
   private TsApiUtils tsApiUtils = new TsApiUtils();
@@ -83,6 +83,7 @@ public class SupportPlugin extends DefaultTsBotPlugin<SupportPluginConfig> {
 
   @Override
   public void init(Ts3BotContext context) {
+    this.chanlIdTSupportChannelConfigMap=new HashMap<>();
     SupportPluginConfig.RegistrationChannelConfig registrationChannelConfig = supportPluginConfig.getRegistrationChannelConfig();
     if (registrationChannelConfig != null) {
       this.registrationChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), registrationChannelConfig.getChannelSearchString());
@@ -146,4 +147,13 @@ public class SupportPlugin extends DefaultTsBotPlugin<SupportPluginConfig> {
   }
 
 
+  @Override
+  public void reloadPlugin(Ts3BotContext context) {
+    this.init(context);
+  }
+
+  @Override
+  public String getReadWriteAuthorityName() {
+    return "support_maintainer";
+  }
 }

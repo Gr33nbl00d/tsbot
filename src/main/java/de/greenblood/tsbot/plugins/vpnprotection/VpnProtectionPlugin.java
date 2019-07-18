@@ -24,7 +24,7 @@ import javax.annotation.PostConstruct;
  */
 @Component
 @TsBotPlugin
-public class VpnProtectionPlugin extends DefaultTsBotPlugin<VpnProtectionPluginConfig> {
+public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPluginConfig> {
 
   private Map<String, BlackListCheckResult> blackListCheckCache;
   private Ts3BotContext context;
@@ -64,8 +64,9 @@ public class VpnProtectionPlugin extends DefaultTsBotPlugin<VpnProtectionPluginC
     return VpnProtectionPluginConfig.class;
   }
 
-  @PostConstruct
-  public void postConstruct() {
+
+  @Override
+  public void init(Ts3BotContext context) {
     blackListCheckCache = new LRUMap<>(vpnProtectionPluginConfig.getIpCacheSize());
     this.whiteList = new HashSet<>(vpnProtectionPluginConfig.getWhiteList());
     String blackListProviderClassName = vpnProtectionPluginConfig.getBlackListProvider();
@@ -75,5 +76,15 @@ public class VpnProtectionPlugin extends DefaultTsBotPlugin<VpnProtectionPluginC
     } catch (ClassNotFoundException e) {
       throw new IllegalStateException("black list provider not found: " + blackListProviderClassName, e);
     }
+  }
+
+  @Override
+  public void reloadPlugin(Ts3BotContext context) {
+    this.init(context);
+  }
+
+  @Override
+  public String getReadWriteAuthorityName() {
+    return "vpnprotection_maintainer";
   }
 }

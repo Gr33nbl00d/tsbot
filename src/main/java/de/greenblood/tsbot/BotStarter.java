@@ -7,9 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
-public class BotStarter implements CommandLineRunner {
+public class BotStarter implements CommandLineRunner, WebMvcConfigurer {
 
     @Autowired
     private Ts3Bot ts3Bot;
@@ -27,15 +38,11 @@ public class BotStarter implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        /*
-        Entity s = new Entity();
-        s.setName("name");
-        s.setEmail("mail");
-        entityRepository.save(s);
 
-        Entity entity = entityRepository.findById(1L).get();
-        System.out.println(entity);
-          */
+        List<GrantedAuthority> permissions = new ArrayList();
+        permissions.add(new SimpleGrantedAuthority("adminrole"));
+
+
         boolean connected = false;
         while (connected == false) {
             try {
@@ -57,5 +64,15 @@ public class BotStarter implements CommandLineRunner {
         }
     }
 
-
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**").addResourceLocations("file:www/")
+                .setCachePeriod(0);
+    }
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        // forward requests to /admin and /user to their index.html
+        registry.addViewController("/").setViewName(
+                "forward:/index.html");
+    }
 }

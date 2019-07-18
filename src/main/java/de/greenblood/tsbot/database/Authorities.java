@@ -1,20 +1,30 @@
 package de.greenblood.tsbot.database;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**
  * Created by Greenblood on 24.05.2019.
  */
 @javax.persistence.Entity
-@Table(name = "authorities")
+@Table(name = "authorities" ,uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})})
 @Component
-public class Authorities {
+public class Authorities implements GrantedAuthority {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @Column(name = "username", nullable = false)
     private String username;
+
+    @Column(name = "authority", nullable = false)
     private String authority;
 
     @JsonIgnore

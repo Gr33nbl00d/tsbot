@@ -55,8 +55,7 @@ public final class IPQualityScoreComBlackListProvider implements BlackListProvid
     connection.setConnectTimeout(timeout);
     connection.setRequestProperty("User-Agent", userAgent);
     try (BufferedReader in = new BufferedReader(
-        new InputStreamReader(
-            connection.getInputStream()))) {
+        new InputStreamReader(connection.getInputStream()))) {
       while ((url = in.readLine()) != null) {
         response.append(url);
       }

@@ -1,6 +1,8 @@
 package de.greenblood.tsbot.plugins.vpnprotection.provider;
 
+import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
@@ -8,6 +10,7 @@ import javax.validation.constraints.NotNull;
 
 @Component
 @ConfigurationProperties("ipqualityscorecomconfig")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:ipqualityscorecomconfig.yml")
 @Validated
 public class IPQualityScoreComConfig {
 
