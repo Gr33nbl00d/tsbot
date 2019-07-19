@@ -34,14 +34,11 @@ public class Ts3Bot extends TS3EventAdapter {
     @Autowired
     private TS3ServerConfig serverConfig;
     private Ts3BotContext context;
-    private List<TsBotPluginInterface> tsBotPluginList = new ArrayList();
-    @Autowired
-    private BeanUtil beanUtil;
-    @Autowired
-    private ApplicationContext applicationContext;
+
     private Logger logger = LoggerFactory.getLogger(Ts3Bot.class);
     private TsApiUtils tsApiUtils = new TsApiUtils();
     @Autowired
+    private PluginManager pluginManager;
     private MeterRegistry meterRegistry;
     private TS3Query query;
     private static final Logger log = LoggerFactory.getLogger(Ts3Bot.class);
@@ -132,18 +129,8 @@ public class Ts3Bot extends TS3EventAdapter {
             ChannelBase botHomeChannel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), config.getBotHomeChannelSearchString());
             context.getApi().moveQuery(botHomeChannel);
         }
-        this.tsBotPluginList = new ArrayList<>();
-        for (String pluginClassName : this.config.getTsBotPluginList()) {
-            beanUtil.setApplicationContext(applicationContext);
-            try {
-                Object bean = beanUtil.getBean(Class.forName(pluginClassName));
-                this.tsBotPluginList.add((TsBotPluginInterface) bean);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("plugin not found " + pluginClassName, e);
-            }
-        }
 
-        for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
+        for (TsBotPluginInterface tsBotPlugin : this.pluginManager.getTsBotPluginList()) {
             try {
                 tsBotPlugin.init(context);
             } catch (Exception e) {
@@ -153,9 +140,10 @@ public class Ts3Bot extends TS3EventAdapter {
     }
 
 
+
     @Override
     public void onClientJoin(ClientJoinEvent e) {
-        for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
+        for (TsBotPluginInterface tsBotPlugin : pluginManager.getTsBotPluginList()) {
             try {
                 tsBotPlugin.onClientJoin(context, e);
             } catch (Exception ex) {
@@ -168,7 +156,7 @@ public class Ts3Bot extends TS3EventAdapter {
     @Override
     public void onTextMessage(TextMessageEvent e) {
         this.textMessagesCounter.increment();
-        for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
+        for (TsBotPluginInterface tsBotPlugin : pluginManager.getTsBotPluginList()) {
             try {
                 tsBotPlugin.onTextMessage(context, e);
             } catch (Exception ex) {
@@ -180,7 +168,7 @@ public class Ts3Bot extends TS3EventAdapter {
 
     @Override
     public void onClientMoved(ClientMovedEvent e) {
-        for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
+        for (TsBotPluginInterface tsBotPlugin : pluginManager.getTsBotPluginList()) {
             try {
                 tsBotPlugin.onClientMoved(context, e);
             } catch (Exception ex) {
@@ -191,7 +179,7 @@ public class Ts3Bot extends TS3EventAdapter {
 
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
-        for (TsBotPluginInterface tsBotPlugin : this.getTsBotPluginList()) {
+        for (TsBotPluginInterface tsBotPlugin : pluginManager.getTsBotPluginList()) {
             try {
                 tsBotPlugin.onClientLeave(context, e);
             } catch (Exception ex) {
@@ -199,10 +187,6 @@ public class Ts3Bot extends TS3EventAdapter {
             }
 
         }
-    }
-
-    public List<TsBotPluginInterface> getTsBotPluginList() {
-        return tsBotPluginList;
     }
 
     public void reloadPlugin(UpdatableTsBotPlugin plugin) {

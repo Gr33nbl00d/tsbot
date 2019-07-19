@@ -1,5 +1,6 @@
 package de.greenblood.tsbot.database;
 
+import de.greenblood.tsbot.common.PluginManager;
 import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
 import de.greenblood.tsbot.restservice.UnknownAuthorityException;
@@ -24,6 +25,8 @@ public class UserManager {
     AuthoritiesRepository authoritiesRepository;
     @Autowired
     ApplicationContext applicationContext;
+    @Autowired
+    PluginManager pluginManager;
 
     public void saveUser(@RequestBody Users user) {
         if (usersRepository.findById(user.getUsername()).isPresent() == false) {
@@ -77,24 +80,10 @@ public class UserManager {
     public List<String> getAllAuthorities() {
         ArrayList<String> allRoles = new ArrayList<>();
         allRoles.add("user_maintainer");
-        List<UpdatableTsBotPlugin> allActivePlugins = getAllActivePlugins();
+        List<UpdatableTsBotPlugin> allActivePlugins = pluginManager.getUpdatableTsBotPluginList();
         for (UpdatableTsBotPlugin allActivePlugin : allActivePlugins) {
             allRoles.add(allActivePlugin.getReadWriteAuthorityName());
         }
         return allRoles;
     }
-
-    private List<UpdatableTsBotPlugin> getAllActivePlugins() {
-        AutowireCapableBeanFactory autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
-        ListableBeanFactory listableBeanFactory = (ListableBeanFactory) autowireCapableBeanFactory;
-        Map<String, Object> beansWithAnnotation = listableBeanFactory.getBeansWithAnnotation(TsBotPlugin.class);
-        ArrayList<UpdatableTsBotPlugin> tsBotPlugins = new ArrayList<>();
-        for (Object value : beansWithAnnotation.values()) {
-            if (value instanceof UpdatableTsBotPlugin) {
-                tsBotPlugins.add((UpdatableTsBotPlugin) value);
-            }
-        }
-        return tsBotPlugins;
-    }
-
 }
