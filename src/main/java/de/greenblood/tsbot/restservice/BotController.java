@@ -202,7 +202,7 @@ public class BotController {
         StringBuffer stringBuffer = new StringBuffer();
         while ((line = reader.readLine()) != null) {
             if (lineNumber >= 1) {
-                stringBuffer.append(line + "\n");
+                stringBuffer.append(line.substring(2) + "\n");
             }
             lineNumber++;
         }
