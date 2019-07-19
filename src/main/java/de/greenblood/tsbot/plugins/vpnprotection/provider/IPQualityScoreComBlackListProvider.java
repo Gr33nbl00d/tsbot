@@ -86,6 +86,7 @@ public final class IPQualityScoreComBlackListProvider implements BlackListProvid
       IPQualityScoreComVPNResponse response = getResponse(ip);
       if (response.fraudScore >= config.getMaximumAllowedFraudScore() || (response.vpn == true && config.isUseVpnDetection()) || (
           response.proxy == true && config.isUseProxyDetection())) {
+        logger.warn("kicking user ",response);
         return new BlackListCheckResult(true);
       }
     } catch (IOException e) {

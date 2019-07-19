@@ -35,4 +35,32 @@ public class IPQualityScoreComVPNResponse {
   public int deviceModel;
   @SerializedName("device_brand")
   public int deviceBrand;
+
+  @Override
+  public String toString() {
+    return "IPQualityScoreComVPNResponse{" +
+            "message='" + message + '\'' +
+            ", success=" + success +
+            ", proxy=" + proxy +
+            ", internetServiceProvider='" + internetServiceProvider + '\'' +
+            ", organization='" + organization + '\'' +
+            ", autonomousSystemNumber='" + autonomousSystemNumber + '\'' +
+            ", countryCode='" + countryCode + '\'' +
+            ", city='" + city + '\'' +
+            ", region='" + region + '\'' +
+            ", crawler=" + crawler +
+            ", latitude=" + latitude +
+            ", longtitude=" + longtitude +
+            ", timezone='" + timezone + '\'' +
+            ", vpn=" + vpn +
+            ", tor=" + tor +
+            ", recentAbuse=" + recentAbuse +
+            ", mobile=" + mobile +
+            ", fraudScore=" + fraudScore +
+            ", operatingSystem=" + operatingSystem +
+            ", browser=" + browser +
+            ", deviceModel=" + deviceModel +
+            ", deviceBrand=" + deviceBrand +
+            '}';
+  }
 }

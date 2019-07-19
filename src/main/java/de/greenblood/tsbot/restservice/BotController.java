@@ -202,7 +202,7 @@ public class BotController {
         StringBuffer stringBuffer = new StringBuffer();
         while ((line = reader.readLine()) != null) {
             if (lineNumber >= 1) {
-                stringBuffer.append(line.substring(2) + "\r\n");
+                stringBuffer.append(line + "\n");
             }
             lineNumber++;
         }
@@ -230,7 +230,7 @@ public class BotController {
                 ConfigurationProperties configurationProperties = (ConfigurationProperties) plugin.getConfigClass().getAnnotation(ConfigurationProperties.class);
                 String configRootName = configurationProperties.value();
                 StringBuffer buffer = new StringBuffer();
-                buffer.append(configRootName + ":\r\n");
+                buffer.append(configRootName + ":\n");
                 BufferedReader reader = new BufferedReader(new StringReader(configString));
                 String line = null;
                 while ((line = reader.readLine()) != null) {
