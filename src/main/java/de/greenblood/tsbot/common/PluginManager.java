@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Greenblood on 19.07.2019.
  */
-@ApplicationScope
+@Component
 public class PluginManager {
     @Autowired
     private ApplicationContext applicationContext;
