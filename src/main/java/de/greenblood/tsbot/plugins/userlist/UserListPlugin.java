@@ -3,12 +3,16 @@ package de.greenblood.tsbot.plugins.userlist;
 import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientLeaveEvent;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroupClient;
+import de.greenblood.tsbot.Ts3Bot;
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.caches.ServerGroupClientsRetriever;
 import de.greenblood.tsbot.common.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +28,7 @@ import java.util.*;
 @TsBotPlugin
 public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
 
+    private static final Logger log = LoggerFactory.getLogger(Ts3Bot.class);
     @Autowired(required = false)
     private UserListPluginConfig userListPluginConfig;
     private TsApiUtils tsApiUtils = new TsApiUtils();
@@ -33,6 +38,7 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
     //this way we can detect if we need to update the user list on client leave
     private Map<Integer, HashSet<String>> clientIdToUserListsMap;
     private Map<Integer, String> channelIdToChannelTemplateDescriptionMap;
+
     public UserListPlugin() {
     }
 
@@ -127,7 +133,6 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
             String userListIdentifier = userList.getIdentifier();
             String textToReplace = "%USER_LIST_" + userListIdentifier + "%";
             String replacingText = getTextEntriesForServerGroup(context, clientsOnline, userList, userListConfig);
-
             userListChannelDescription = userListChannelDescription.replace(textToReplace, replacingText);
         }
         context.getAsyncApi().editChannel(channel.getId(), ChannelProperty.CHANNEL_DESCRIPTION, userListChannelDescription);
@@ -136,9 +141,9 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
 
     @Override
     public void init(Ts3BotContext context) {
-        this.channelIdToChannelTemplateDescriptionMap=new HashMap<>();
+        this.channelIdToChannelTemplateDescriptionMap = new HashMap<>();
         this.clientIdToUserListsMap = new HashMap<>();
-        this. channelSearchStringToChannelMap = new HashMap<>();
+        this.channelSearchStringToChannelMap = new HashMap<>();
         List<UserListPluginConfig.UserListConfig> userListConfigList = userListPluginConfig.getUserListConfigList();
         for (UserListPluginConfig.UserListConfig userListConfig : userListConfigList) {
             String templateFileLocation = userListConfig.getTemplateFileLocation();
@@ -162,8 +167,14 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
         List<ServerGroupClient> serverGroupClients = new ArrayList<>();
         for (Integer serverGroup : serverGroupsToInclude) {
 
-            List<ServerGroupClient> serverGroupsOfClient = ServerGroupClientsRetriever.getInstance().retrieve(context, serverGroup, true);
-            serverGroupClients.addAll(serverGroupsOfClient);
+            try {
+                List<ServerGroupClient> serverGroupsOfClient = ServerGroupClientsRetriever.getInstance().retrieve(context, serverGroup, true);
+                serverGroupClients.addAll(serverGroupsOfClient);
+
+                //TODO better concept needed for failed commands
+            } catch (TS3CommandFailedException e) {
+                log.error("could not retrieve users for server group " + serverGroup, e);
+            }
         }
 
         for (ServerGroupClient client : serverGroupClients) {

@@ -39,6 +39,7 @@ public class Ts3Bot extends TS3EventAdapter {
     private TsApiUtils tsApiUtils = new TsApiUtils();
     @Autowired
     private PluginManager pluginManager;
+    @Autowired
     private MeterRegistry meterRegistry;
     private TS3Query query;
     private static final Logger log = LoggerFactory.getLogger(Ts3Bot.class);
