@@ -27,12 +27,12 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
     @Autowired(required = false)
     private UserListPluginConfig userListPluginConfig;
     private TsApiUtils tsApiUtils = new TsApiUtils();
-    private Map<Integer, String> channelIdToChannelTemplateDescriptionMap = new HashMap<>();
-    private Map<String, ChannelBase> channelSearchStringToChannelMap = new HashMap<>();
+
+    private Map<String, ChannelBase> channelSearchStringToChannelMap;
     //online clients which causing changes to the user list once they leave
     //this way we can detect if we need to update the user list on client leave
-    private Map<Integer, HashSet<String>> clientIdToUserListsMap = new HashMap<>();
-
+    private Map<Integer, HashSet<String>> clientIdToUserListsMap;
+    private Map<Integer, String> channelIdToChannelTemplateDescriptionMap;
     public UserListPlugin() {
     }
 
@@ -136,6 +136,9 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
 
     @Override
     public void init(Ts3BotContext context) {
+        this.channelIdToChannelTemplateDescriptionMap=new HashMap<>();
+        this.clientIdToUserListsMap = new HashMap<>();
+        this. channelSearchStringToChannelMap = new HashMap<>();
         List<UserListPluginConfig.UserListConfig> userListConfigList = userListPluginConfig.getUserListConfigList();
         for (UserListPluginConfig.UserListConfig userListConfig : userListConfigList) {
             String templateFileLocation = userListConfig.getTemplateFileLocation();
