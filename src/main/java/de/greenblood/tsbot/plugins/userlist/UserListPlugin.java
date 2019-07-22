@@ -180,9 +180,10 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
         for (ServerGroupClient client : serverGroupClients) {
             String onlineStatusText = "";
             if (isClientOnline(clientOnline, client.getUniqueIdentifier())) {
-                onlineStatusText = userListConfig.getOfflineHtmlTemplate();
-            } else {
                 onlineStatusText = userListConfig.getOnlineHtmlTemplate();
+            } else {
+                onlineStatusText = userListConfig.getOfflineHtmlTemplate();
+
             }
             String entryHtmlTemplate = userList.getEntryHtmlTemplate();
             String htmlEntry = new MessageFormatingBuilder()
