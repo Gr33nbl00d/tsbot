@@ -1,21 +1,17 @@
 package de.greenblood.tsbot.database;
 
 import de.greenblood.tsbot.common.PluginManager;
-import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
-import de.greenblood.tsbot.restservice.UnknownAuthorityException;
-import de.greenblood.tsbot.restservice.UserAlreadyExistsException;
-import de.greenblood.tsbot.restservice.UserNotFoundException;
-import org.springframework.beans.factory.ListableBeanFactory;
+import de.greenblood.tsbot.restservice.exceptions.UnknownAuthorityException;
+import de.greenblood.tsbot.restservice.exceptions.UserAlreadyExistsException;
+import de.greenblood.tsbot.restservice.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class UserManager {

@@ -1,4 +1,4 @@
-package de.greenblood.tsbot.restservice;
+package de.greenblood.tsbot.restservice.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

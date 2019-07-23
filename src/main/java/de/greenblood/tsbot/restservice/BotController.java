@@ -5,6 +5,10 @@ import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
 import de.greenblood.tsbot.database.*;
 import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
+import de.greenblood.tsbot.restservice.exceptions.AccessDeniedException;
+import de.greenblood.tsbot.restservice.exceptions.InvalidPluginConfigurationException;
+import de.greenblood.tsbot.restservice.exceptions.UnknownPluginException;
+import de.greenblood.tsbot.restservice.exceptions.UserNotFoundException;
 import de.greenblood.tsbot.restservice.security.SpringBootSecurityManager;
 import de.greenblood.tsbot.restservice.security.UserDetailsAdapter;
 import org.slf4j.Logger;
@@ -223,7 +227,7 @@ public class BotController {
             try {
                 Object load = yaml.load(configString);
                 if (load.getClass().equals(plugin.getConfigClass()) == false) {
-                    throw new InvalidPluginConfiguration("Plugin configuration is of wrong type");
+                    throw new InvalidPluginConfigurationException("Plugin configuration is of wrong type");
                 }
                 config.update(load);
                 ts3Bot.reloadPlugin(plugin);
@@ -240,9 +244,9 @@ public class BotController {
                 Files.write(configFile, buffer.toString().getBytes(Charset.forName("UTF-8")));
                 return ResponseEntity.status(HttpStatus.OK).build();
             } catch (YAMLException e) {
-                throw new InvalidPluginConfiguration("Error parsing configuration: " + e.getMessage(), e);
+                throw new InvalidPluginConfigurationException("Error parsing configuration: " + e.getMessage(), e);
             } catch (IOException e) {
-                throw new InvalidPluginConfiguration("Error parsing configuration", e);
+                throw new InvalidPluginConfigurationException("Error parsing configuration", e);
             }
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

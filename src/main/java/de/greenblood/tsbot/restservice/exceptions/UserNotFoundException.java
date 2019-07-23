@@ -1,4 +1,4 @@
-package de.greenblood.tsbot.restservice;
+package de.greenblood.tsbot.restservice.exceptions;
 
 /**
  * Created by Greenblood on 24.05.2019.
