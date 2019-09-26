@@ -49,6 +49,7 @@ public class TopgPlugin extends UpdatableTsBotPlugin<TopgPluginConfig> {
 
     @Override
     public Object getResource(Authentication auth, String resource, Map<String, String[]> params) {
+        // Get request from pubg topgvoting {p_resp=[testuser], ip=[5.79.90.39]}
         log.info("Get request from pubg " + resource + " " + convertWithStream(params));
         return null;
     }

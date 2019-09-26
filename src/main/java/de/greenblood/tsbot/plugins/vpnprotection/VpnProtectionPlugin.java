@@ -10,6 +10,7 @@ import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListCheckResult;
 import de.greenblood.tsbot.plugins.vpnprotection.provider.BlackListProvider;
 import de.greenblood.tsbot.restservice.AuthorityChecker;
 import de.greenblood.tsbot.restservice.ConfigPrefixPatcher;
+import de.greenblood.tsbot.restservice.YamlConfigStringConverter;
 import de.greenblood.tsbot.restservice.exceptions.AccessDeniedException;
 import de.greenblood.tsbot.restservice.exceptions.InvalidPluginConfigurationException;
 import org.apache.commons.collections4.map.LRUMap;
@@ -19,10 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.nodes.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +44,9 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
     private List<BlackListProvider> availableBlackListProviders;
     @Autowired
     private AuthorityChecker authorityChecker;
+    @Autowired
+    YamlConfigStringConverter yamlConfigStringConverter;
+
 
     private Logger logger = LoggerFactory.getLogger(VpnProtectionPlugin.class);
     private final Gson gson = new Gson();
@@ -85,13 +85,18 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
     public void init(Ts3BotContext context) {
         blackListCheckCache = new LRUMap<>(vpnProtectionPluginConfig.getIpCacheSize());
         this.whiteList = new HashSet<>(vpnProtectionPluginConfig.getWhiteList());
-        String blackListProviderClassName = vpnProtectionPluginConfig.getBlackListProvider();
-        try {
-            Object bean = beanUtil.getBean(Class.forName(blackListProviderClassName));
-            this.activeblackListProvider = (BlackListProvider) bean;
-        } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("black list provider not found: " + blackListProviderClassName, e);
+        String blackListProviderSimpleClassName = vpnProtectionPluginConfig.getBlackListProvider();
+
+        this.activeblackListProvider = getBlacklistProviderBySimpleClassName(blackListProviderSimpleClassName);
+    }
+
+    private BlackListProvider getBlacklistProviderBySimpleClassName(String blackListProviderSimpleClassName) {
+        for (BlackListProvider availableBlackListProvider : this.availableBlackListProviders) {
+            if (availableBlackListProvider.getClass().getSimpleName().equals(blackListProviderSimpleClassName)) {
+                return availableBlackListProvider;
+            }
         }
+        throw new IllegalStateException("provider not found " + blackListProviderSimpleClassName);
     }
 
     @Override
@@ -111,20 +116,20 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
 
     @Override
     public Object getResource(Authentication auth, String resource, Map<String, String[]> params) {
-        if (authorityChecker.hasAuthority(auth, getReadWriteAuthorityName())) {
-            throw new AccessDeniedException("not access rights to access this plugin");
+        if (authorityChecker.hasAuthority(auth, getReadWriteAuthorityName()) == false) {
+            throw new AccessDeniedException("no access rights to access this plugin");
         }
 
         if ("blacklistproviderconfig".equals(resource)) {
-            String aClass = getProviderClassFromParams(params);
-            BlackListProvider blackListProvider = getBlackListProviderInstanceByClass(aClass);
+            String simpleClassName = getProviderClassFromParams(params);
+            BlackListProvider blackListProvider = getBlackListProviderInstanceByClass(simpleClassName);
             return blackListProvider.getConfig();
 
         } else if ("availableblacklistprovider".equals(resource)) {
             List<BlackListProviderInfo> blackListProviderInfos = new ArrayList<>();
             for (BlackListProvider blackListProvider : this.availableBlackListProviders) {
 
-                blackListProviderInfos.add(new BlackListProviderInfo(blackListProvider.getProviderName(), blackListProvider.getClass().getName()));
+                blackListProviderInfos.add(new BlackListProviderInfo(blackListProvider.getProviderName(), blackListProvider.getClass().getSimpleName()));
             }
             return blackListProviderInfos;
         } else {
@@ -134,7 +139,7 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
 
     private BlackListProvider getBlackListProviderInstanceByClass(String aClass) {
         for (BlackListProvider availableBlackListProvider : this.availableBlackListProviders) {
-            if (availableBlackListProvider.getClass().getName().equals(aClass)) {
+            if (availableBlackListProvider.getClass().getSimpleName().equals(aClass)) {
                 return availableBlackListProvider;
             }
         }
@@ -158,17 +163,16 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
 
     @Override
     public void putResource(Authentication auth, String resource, Map<String, String[]> params, String body) {
-        if (authorityChecker.hasAuthority(auth, getReadWriteAuthorityName())) {
-            throw new AccessDeniedException("not access rights to access this plugin");
+        if (authorityChecker.hasAuthority(auth, getReadWriteAuthorityName()) == false) {
+            throw new AccessDeniedException("no access rights to access this plugin");
         }
         if ("blacklistproviderconfig".equals(resource)) {
             String providerClassFromParams = getProviderClassFromParams(params);
             BlackListProvider blackListProvider = getBlackListProviderInstanceByClass(providerClassFromParams);
             Object config = this.gson.fromJson(body, this.activeblackListProvider.getConfigClass());
             blackListProvider.setConfig(config);
-            Constructor constructor = new Constructor(blackListProvider.getConfigClass());
-            Yaml yaml = new Yaml(constructor);
-            String configString = yaml.dumpAs(config, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+
+            String configString = yamlConfigStringConverter.convertToYAMLString(blackListProvider.getConfig(), blackListProvider.getConfigClass());
             configString = this.configPrefixPatcher.patchConfig(blackListProvider.getConfigClass(), configString);
 
             String configClassFileName = getConfigClassFileName(blackListProvider);

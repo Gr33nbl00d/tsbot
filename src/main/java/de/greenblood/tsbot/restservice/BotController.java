@@ -26,7 +26,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -39,7 +38,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
 import org.yaml.snakeyaml.nodes.Tag;
-import sun.security.provider.certpath.OCSPResponse;
+import org.yaml.snakeyaml.representer.Representer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
@@ -73,6 +72,8 @@ public class BotController {
     ConfigPrefixPatcher configPrefixPatcher;
     @Autowired
     AuthorityChecker authorityChecker;
+    @Autowired
+    YamlConfigStringConverter yamlConfigStringConverter;
 
     @PostConstruct
     public void postConstruct() {
@@ -202,9 +203,7 @@ public class BotController {
             UpdateablePluginConfig config = (UpdateablePluginConfig) autowireCapableBeanFactory.getBean(plugin.getConfigClass());
 
 
-            Constructor constructor = new Constructor(plugin.getConfigClass());
-            Yaml yaml = new Yaml(constructor);
-            String configString = yaml.dumpAs(configNew, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
+            String configString = yamlConfigStringConverter.convertToYAMLString(configNew, plugin.getConfigClass());
             try {
                 config.update(configNew);
                 ts3Bot.reloadPlugin(plugin);
