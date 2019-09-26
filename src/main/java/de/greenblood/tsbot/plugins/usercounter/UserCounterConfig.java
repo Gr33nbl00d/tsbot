@@ -6,12 +6,22 @@ import java.util.List;
 public class UserCounterConfig {
 
     @NotNull
+    private String configName;
+    @NotNull
     private String channelSearchString;
     private List<Integer> serverGroupsToIgnore;
     private List<Integer> serverGroupsToCount;
     @NotNull
     private String channelNameTemplate;
     private UserCounterOnlineRecordConfig onlineRecordConfig;
+
+    public String getConfigName() {
+        return configName;
+    }
+
+    public void setConfigName(String configName) {
+        this.configName = configName;
+    }
 
     public UserCounterOnlineRecordConfig getOnlineRecordConfig() {
       return onlineRecordConfig;

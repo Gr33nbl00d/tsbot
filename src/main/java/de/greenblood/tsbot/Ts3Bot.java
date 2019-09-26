@@ -9,17 +9,18 @@ import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedExcepti
 import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ChannelBase;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroup;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
+import de.greenblood.tsbot.caches.ServerGroupsRetriever;
 import de.greenblood.tsbot.common.*;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -141,7 +142,6 @@ public class Ts3Bot extends TS3EventAdapter {
     }
 
 
-
     @Override
     public void onClientJoin(ClientJoinEvent e) {
         for (TsBotPluginInterface tsBotPlugin : pluginManager.getTsBotPluginList()) {
@@ -192,6 +192,15 @@ public class Ts3Bot extends TS3EventAdapter {
 
     public void reloadPlugin(UpdatableTsBotPlugin plugin) {
         plugin.reloadPlugin(context);
+    }
+
+    public List<ServerGroup> getServerGroups() {
+        try {
+            return ServerGroupsRetriever.getInstance().retrieve(this.context, null, true);
+        } catch (Exception e) {
+            log.warn("could not load server groups", e);
+            return Collections.emptyList();
+        }
     }
 
     public boolean isConnected() {

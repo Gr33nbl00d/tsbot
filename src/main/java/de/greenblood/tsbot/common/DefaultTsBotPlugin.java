@@ -4,6 +4,9 @@ import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientLeaveEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
+import de.greenblood.tsbot.restservice.exceptions.PluginWebRequestNotSupported;
+
+import java.util.Map;
 
 public abstract class DefaultTsBotPlugin<T> implements TsBotPluginInterface<T>{
 
@@ -29,4 +32,5 @@ public abstract class DefaultTsBotPlugin<T> implements TsBotPluginInterface<T>{
 
   @Override
   public abstract Class<T> getConfigClass();
+
 }

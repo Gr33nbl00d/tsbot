@@ -1,7 +1,7 @@
 package de.greenblood.tsbot.plugins.usercounter;
 
 import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
-import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
+import de.greenblood.tsbot.common.UpdateablePluginConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Component
-@ConfigurationProperties("usercounterplugin")
+@ConfigurationProperties(prefix="usercounterplugin")
 @PropertySource(factory = YamlPropertySourceFactory.class, value = "file:usercounter.yml")
 @Validated
 public class UserCounterPluginConfig implements UpdateablePluginConfig<UserCounterPluginConfig> {

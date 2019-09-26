@@ -9,6 +9,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import de.greenblood.tsbot.Ts3Bot;
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.common.*;
+import de.greenblood.tsbot.common.UpdateablePluginConfig;
 import de.greenblood.tsbot.plugins.support.IncludedInServerGroupFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,5 +127,10 @@ public class UserCounterPlugin extends UpdatableTsBotPlugin<UserCounterPluginCon
     @Override
     public String getReadWriteAuthorityName() {
         return "usercounter_maintainer";
+    }
+
+    @Override
+    public UpdateablePluginConfig<UserCounterPluginConfig> getConfig() {
+        return this.userCounterPluginConfig;
     }
 }

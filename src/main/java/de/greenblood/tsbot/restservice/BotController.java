@@ -1,10 +1,11 @@
 package de.greenblood.tsbot.restservice;
 
+import com.github.theholywaffle.teamspeak3.api.wrapper.ServerGroup;
 import de.greenblood.tsbot.Ts3Bot;
 import de.greenblood.tsbot.common.TsBotPlugin;
 import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
 import de.greenblood.tsbot.database.*;
-import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
+import de.greenblood.tsbot.common.UpdateablePluginConfig;
 import de.greenblood.tsbot.restservice.exceptions.AccessDeniedException;
 import de.greenblood.tsbot.restservice.exceptions.InvalidPluginConfigurationException;
 import de.greenblood.tsbot.restservice.exceptions.UnknownPluginException;
@@ -16,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpStatus;
@@ -33,19 +33,22 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.nodes.Tag;
+import sun.security.provider.certpath.OCSPResponse;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.PermitAll;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,6 +69,10 @@ public class BotController {
     UserManager userManager;
     @Autowired
     SpringBootSecurityManager springBootSecurityManager;
+    @Autowired
+    ConfigPrefixPatcher configPrefixPatcher;
+    @Autowired
+    AuthorityChecker authorityChecker;
 
     @PostConstruct
     public void postConstruct() {
@@ -92,8 +99,7 @@ public class BotController {
     }
 
     @RequestMapping(path = "/odysseus/api/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public
-    @ResponseBody
+    public @ResponseBody
     Iterable<Users> getUsers() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (isUserMaintainer(auth)) {
@@ -103,19 +109,22 @@ public class BotController {
         }
     }
 
-    private boolean isUserMaintainer(Authentication auth) {
-        return hasAuthority(auth, "user_maintainer");
+    @RequestMapping(path = "/odysseus/api/servergroups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public @ResponseBody
+    Iterable<ServerGroup> getServerGroups() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.isAuthenticated()) {
+            return ts3Bot.getServerGroups();
+        } else {
+            throw new AccessDeniedException("access denied for unregistered users");
+        }
     }
 
-    private boolean hasAuthority(Authentication auth, String authorityString) {
-        Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
-        for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals(authorityString)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isUserMaintainer(Authentication auth) {
+        return authorityChecker.hasAuthority(auth, "user_maintainer");
     }
+
 
     @Transactional
     @RequestMapping(path = "/odysseus/api/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -171,77 +180,39 @@ public class BotController {
         }
     }
 
-    @RequestMapping(path = "/odysseus/api/pluginconfig/{configName}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<String> readConfig(@PathVariable String configName) {
-        AutowireCapableBeanFactory autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
+    @RequestMapping(path = "/odysseus/api/pluginconfig/{configName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<UpdateablePluginConfig> readConfig(@PathVariable String configName) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
-        if (hasAuthority(auth, pluginByConfigName.getReadWriteAuthorityName())) {
-            try {
-
-                //todo new method to only check if the name is valid not retuning a plugin
-                if (pluginByConfigName != null) {
-                    //Todo this is not nice
-                    String configFileName = getFileNameFromPlugin(pluginByConfigName);
-                    Path path = new File(configFileName).toPath();
-                    byte[] bytes = Files.readAllBytes(path);
-                    String config = new String(bytes, Charset.forName("UTF-8"));
-                    config = stripFirstLineAndOneIdentationLevel(config);
-                    return new ResponseEntity<String>(config, HttpStatus.OK);
-                } else {
-                    throw new UnknownPluginException("Plugin with name " + configName + " was not found");
-                }
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+        if (authorityChecker.hasAuthority(auth, pluginByConfigName.getReadWriteAuthorityName())) {
+            UpdateablePluginConfig config = pluginByConfigName.getConfig();
+            return new ResponseEntity<>(config, HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
-    private String stripFirstLineAndOneIdentationLevel(String config) throws IOException {
-        BufferedReader reader = new BufferedReader(new StringReader(config));
-        int lineNumber = 0;
-        String line = null;
-        StringBuffer stringBuffer = new StringBuffer();
-        while ((line = reader.readLine()) != null) {
-            if (lineNumber >= 1) {
-                stringBuffer.append(line.substring(2) + "\n");
-            }
-            lineNumber++;
-        }
-        return stringBuffer.toString();
-    }
-
-
-    @RequestMapping(path = "/odysseus/api/pluginconfig/{configName}", method = RequestMethod.PUT, consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<Object> updateConfig(@PathVariable String configName, @RequestBody String configString) {
+    @RequestMapping(path = "/odysseus/api/pluginconfig/{configName}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Object> updateConfig(@PathVariable String configName, @RequestBody UpdateablePluginConfig configNew) {
         AutowireCapableBeanFactory autowireCapableBeanFactory = applicationContext.getAutowireCapableBeanFactory();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UpdatableTsBotPlugin plugin = getUpdateablePluginByConfigName(configName);
 
-        if (hasAuthority(auth, plugin.getReadWriteAuthorityName())) {
+        if (authorityChecker.hasAuthority(auth, plugin.getReadWriteAuthorityName())) {
             UpdateablePluginConfig config = (UpdateablePluginConfig) autowireCapableBeanFactory.getBean(plugin.getConfigClass());
 
-            Yaml yaml = new Yaml(new Constructor(plugin.getConfigClass()));
+
+            Constructor constructor = new Constructor(plugin.getConfigClass());
+            Yaml yaml = new Yaml(constructor);
+            String configString = yaml.dumpAs(configNew, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
             try {
-                Object load = yaml.load(configString);
-                if (load.getClass().equals(plugin.getConfigClass()) == false) {
-                    throw new InvalidPluginConfigurationException("Plugin configuration is of wrong type");
-                }
-                config.update(load);
+                config.update(configNew);
                 ts3Bot.reloadPlugin(plugin);
-                ConfigurationProperties configurationProperties = (ConfigurationProperties) plugin.getConfigClass().getAnnotation(ConfigurationProperties.class);
-                String configRootName = configurationProperties.value();
-                StringBuffer buffer = new StringBuffer();
-                buffer.append(configRootName + ":\n");
-                BufferedReader reader = new BufferedReader(new StringReader(configString));
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append("  " + line + "\n");
-                }
                 Path configFile = new File("./" + getFileNameFromPlugin(plugin)).toPath();
-                Files.write(configFile, buffer.toString().getBytes(Charset.forName("UTF-8")));
+                String patcheConfig = configPrefixPatcher.patchConfig(plugin.getConfigClass(), configString);
+
+                Files.write(configFile, patcheConfig.getBytes(Charset.forName("UTF-8")));
+
                 return ResponseEntity.status(HttpStatus.OK).build();
             } catch (YAMLException e) {
                 throw new InvalidPluginConfigurationException("Error parsing configuration: " + e.getMessage(), e);
@@ -319,6 +290,39 @@ public class BotController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
+    }
+
+    @GetMapping("anonymous")
+    @PermitAll
+    @RequestMapping(path = "/odysseus/api/plugin/{configName}/get/{resource}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Object> pluginGetRequest(@PathVariable String configName, @PathVariable String resource, WebRequest webRequest) {
+
+        Map<String, String[]> params = webRequest.getParameterMap();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
+        return new ResponseEntity<>(pluginByConfigName.getResource(auth,resource, params), HttpStatus.OK);
+    }
+
+    @GetMapping("anonymous")
+    @PermitAll
+    @RequestMapping(path = "/odysseus/api/plugin/{configName}/post/{resource}", method = RequestMethod.POST)
+    public ResponseEntity pluginPostRequest(@PathVariable String configName, @PathVariable String resource, WebRequest webRequest) {
+        Map<String, String[]> params = webRequest.getParameterMap();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
+        pluginByConfigName.postResource(auth,resource, params);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("anonymous")
+    @PermitAll
+    @RequestMapping(path = "/odysseus/api/plugin/{configName}/put/{resource}", method = RequestMethod.PUT)
+    public ResponseEntity pluginPutRequest(@RequestBody String body, @PathVariable String configName, @PathVariable String resource, WebRequest webRequest) {
+        Map<String, String[]> params = webRequest.getParameterMap();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
+        pluginByConfigName.putResource(auth,resource, params, body);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
     private String getFileNameFromPlugin(UpdatableTsBotPlugin plugin) {

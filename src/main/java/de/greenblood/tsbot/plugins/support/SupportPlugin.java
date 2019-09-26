@@ -10,6 +10,7 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.common.*;
+import de.greenblood.tsbot.common.UpdateablePluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,5 +154,10 @@ public class SupportPlugin extends UpdatableTsBotPlugin<SupportPluginConfig> {
   @Override
   public String getReadWriteAuthorityName() {
     return "support_maintainer";
+  }
+
+  @Override
+  public UpdateablePluginConfig<SupportPluginConfig> getConfig() {
+    return this.supportPluginConfig;
   }
 }

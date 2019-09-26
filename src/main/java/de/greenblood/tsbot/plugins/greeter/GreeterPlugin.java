@@ -5,10 +5,7 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
-import de.greenblood.tsbot.common.MessageFormatingBuilder;
-import de.greenblood.tsbot.common.Ts3BotContext;
-import de.greenblood.tsbot.common.TsBotPlugin;
-import de.greenblood.tsbot.common.UpdatableTsBotPlugin;
+import de.greenblood.tsbot.common.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +42,11 @@ public class GreeterPlugin extends UpdatableTsBotPlugin<GreeterPluginConfig> {
   @Override
   public void reloadPlugin(Ts3BotContext context) {
 
+  }
+
+  @Override
+  public UpdateablePluginConfig<GreeterPluginConfig> getConfig(){
+    return this.greeterPluginConfig;
   }
 
   @Override

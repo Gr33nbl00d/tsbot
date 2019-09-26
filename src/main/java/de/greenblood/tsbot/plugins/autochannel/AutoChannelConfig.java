@@ -14,6 +14,8 @@ import java.util.List;
 public class AutoChannelConfig {
 
   @NotNull
+  private String configName;
+  @NotNull
   private String channelSearchString;
   @NotNull
   private boolean autoCreateOnJoin;
@@ -75,5 +77,13 @@ public class AutoChannelConfig {
 
   public void setNewChannelName(String newChannelName) {
     this.newChannelName = newChannelName;
+  }
+
+  public String getConfigName() {
+    return configName;
+  }
+
+  public void setConfigName(String configName) {
+    this.configName = configName;
   }
 }

@@ -11,14 +11,12 @@ import de.greenblood.tsbot.Ts3Bot;
 import de.greenblood.tsbot.caches.ClientsOnlineRetriever;
 import de.greenblood.tsbot.caches.ServerGroupClientsRetriever;
 import de.greenblood.tsbot.common.*;
+import de.greenblood.tsbot.common.UpdateablePluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -146,15 +144,9 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
         this.channelSearchStringToChannelMap = new HashMap<>();
         List<UserListPluginConfig.UserListConfig> userListConfigList = userListPluginConfig.getUserListConfigList();
         for (UserListPluginConfig.UserListConfig userListConfig : userListConfigList) {
-            String templateFileLocation = userListConfig.getTemplateFileLocation();
-            try {
-                File templateFile = new File(templateFileLocation);
-                ChannelBase channel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), userListConfig.getChannelSearchString());
-                channelIdToChannelTemplateDescriptionMap.put(channel.getId(), new String(Files.readAllBytes(templateFile.toPath()), "UTF-8"));
-                channelSearchStringToChannelMap.put(userListConfig.getChannelSearchString(), channel);
-            } catch (IOException e) {
-                throw new IllegalStateException("could not read template file" + templateFileLocation);
-            }
+            ChannelBase channel = tsApiUtils.findUniqueMandatoryChannel(context.getApi(), userListConfig.getChannelSearchString());
+            channelIdToChannelTemplateDescriptionMap.put(channel.getId(), userListConfig.getListHtmlTemplate());
+            channelSearchStringToChannelMap.put(userListConfig.getChannelSearchString(), channel);
         }
         updateUserLists(context);
     }
@@ -214,5 +206,10 @@ public class UserListPlugin extends UpdatableTsBotPlugin<UserListPluginConfig> {
     @Override
     public String getReadWriteAuthorityName() {
         return "userlist_maintainer";
+    }
+
+    @Override
+    public UpdateablePluginConfig<UserListPluginConfig> getConfig() {
+        return userListPluginConfig;
     }
 }

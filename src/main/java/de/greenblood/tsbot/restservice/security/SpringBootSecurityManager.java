@@ -3,6 +3,7 @@ package de.greenblood.tsbot.restservice.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -27,7 +28,7 @@ public class SpringBootSecurityManager extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/favicon.ico", "/static-css/**", "/locales/**", "/img/**", "/fonts/**", "/client.js", "/vendor.js", "/index.html", "/", "/odysseus/api/login").permitAll()
+                .antMatchers("/favicon.ico", "/static-css/**", "/locales/**", "/img/**", "/fonts/**", "/client.js", "/vendor.js", "/index.html", "/", "/odysseus/api/login","/odysseus/api/plugin/*/get/**","/odysseus/api/plugin/*/post/**","/odysseus/api/plugin/*/put/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable()

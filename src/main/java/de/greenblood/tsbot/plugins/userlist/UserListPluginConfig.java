@@ -1,7 +1,7 @@
 package de.greenblood.tsbot.plugins.userlist;
 
 import de.greenblood.tsbot.plugins.autochannel.YamlPropertySourceFactory;
-import de.greenblood.tsbot.plugins.greeter.UpdateablePluginConfig;
+import de.greenblood.tsbot.common.UpdateablePluginConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Component
-@ConfigurationProperties("userlistplugin")
+@ConfigurationProperties(prefix="userlistplugin")
 @PropertySource(factory = YamlPropertySourceFactory.class, value = "file:userlist.yml")
 @Validated
 public class UserListPluginConfig implements UpdateablePluginConfig<UserListPluginConfig> {
@@ -38,16 +38,33 @@ public class UserListPluginConfig implements UpdateablePluginConfig<UserListPlug
     public static class UserListConfig {
 
         @NotNull
-        private String channelSearchString;
+        private String configName;
         @NotNull
-        private String templateFileLocation;
+        private String channelSearchString;
         @NotNull
         @NotEmpty
         private List<UserList> userList;
         @NotNull
+        @NotEmpty
         private String offlineHtmlTemplate;
         @NotNull
+        @NotEmpty
         private String onlineHtmlTemplate;
+        @NotNull
+        @NotEmpty
+        private String listHtmlTemplate;
+
+        public String getListHtmlTemplate() {
+            return listHtmlTemplate;
+        }
+
+        public String getConfigName() {
+            return configName;
+        }
+
+        public void setConfigName(String configName) {
+            this.configName = configName;
+        }
 
         public String getOnlineHtmlTemplate() {
             return onlineHtmlTemplate;
@@ -77,12 +94,8 @@ public class UserListPluginConfig implements UpdateablePluginConfig<UserListPlug
             this.channelSearchString = channelSearchString;
         }
 
-        public String getTemplateFileLocation() {
-            return templateFileLocation;
-        }
-
-        public void setTemplateFileLocation(String templateFileLocation) {
-            this.templateFileLocation = templateFileLocation;
+        public void setListHtmlTemplate(String listHtmlTemplate) {
+            this.listHtmlTemplate = listHtmlTemplate;
         }
 
         public String getOfflineHtmlTemplate() {
@@ -97,7 +110,6 @@ public class UserListPluginConfig implements UpdateablePluginConfig<UserListPlug
         @NotNull
         private String entryHtmlTemplate;
         @NotNull
-        @NotEmpty
         private List<Integer> serverGroupsToInclude;
 
         public String getIdentifier() {
