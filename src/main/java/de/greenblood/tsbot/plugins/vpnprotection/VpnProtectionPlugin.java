@@ -56,6 +56,9 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
     public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
         ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
         String ip = clientInfo.getIp();
+        if (ip.equals("[::1]")) {
+            ip = "127.0.0.1";
+        }
         if (whiteList.contains(ip)) {
             logger.info("client {} with ip {} not checked because ip is white listed", clientInfo.getNickname(), ip);
             return;
