@@ -206,4 +206,8 @@ public class Ts3Bot extends TS3EventAdapter {
     public boolean isConnected() {
         return query.isConnected();
     }
+
+    public Ts3BotContext getContext() {
+        return context;
+    }
 }

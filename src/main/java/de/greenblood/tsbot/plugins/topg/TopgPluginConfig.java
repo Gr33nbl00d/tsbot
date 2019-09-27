@@ -8,12 +8,30 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 @Component
-@ConfigurationProperties(prefix="topgplugin")
-@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:topgplugin.yml")
-@Validated
+@ConfigurationProperties(prefix = "topgplugin")
+@PropertySource(factory = YamlPropertySourceFactory.class, value = "file:topg.yml")
 public class TopgPluginConfig implements UpdateablePluginConfig<TopgPluginConfig> {
+    private String voteMessage;
+    private int serverGroupToAssignOnVote;
+
+    public String getVoteMessage() {
+        return voteMessage;
+    }
+
+    public void setVoteMessage(String voteMessage) {
+        this.voteMessage = voteMessage;
+    }
+
     @Override
     public void update(TopgPluginConfig topgPluginConfig) {
 
+    }
+
+    public void setServerGroupToAssignOnVote(int serverGroupToAssignOnVote) {
+        this.serverGroupToAssignOnVote = serverGroupToAssignOnVote;
+    }
+
+    public int getServerGroupToAssignOnVote() {
+        return serverGroupToAssignOnVote;
     }
 }

@@ -115,7 +115,7 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
     }
 
     @Override
-    public Object getResource(Authentication auth, String resource, Map<String, String[]> params) {
+    public Object getResource(Ts3BotContext context, Authentication auth, String resource, Map<String, String[]> params) {
         if (authorityChecker.hasAuthority(auth, getReadWriteAuthorityName()) == false) {
             throw new AccessDeniedException("no access rights to access this plugin");
         }
@@ -133,7 +133,7 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
             }
             return blackListProviderInfos;
         } else {
-            return super.getResource(auth, resource, params);
+            return super.getResource(context, auth, resource, params);
         }
     }
 
@@ -162,7 +162,7 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
     }
 
     @Override
-    public void putResource(Authentication auth, String resource, Map<String, String[]> params, String body) {
+    public void putResource(Ts3BotContext context, Authentication auth, String resource, Map<String, String[]> params, String body) {
         if (authorityChecker.hasAuthority(auth, getReadWriteAuthorityName()) == false) {
             throw new AccessDeniedException("no access rights to access this plugin");
         }
@@ -182,7 +182,7 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
                 throw new IllegalStateException(e);
             }
         } else {
-            super.putResource(auth, resource, params, body);
+            super.putResource(context, auth, resource, params, body);
         }
     }
 }

@@ -13,7 +13,6 @@ import java.util.List;
 @Component
 @ConfigurationProperties(prefix="greeterplugin")
 @PropertySource(factory = YamlPropertySourceFactory.class, value = "file:greeter.yml")
-@Validated
 public class GreeterPluginConfig implements UpdateablePluginConfig<GreeterPluginConfig> {
 
   private List<String> greetingMessages;

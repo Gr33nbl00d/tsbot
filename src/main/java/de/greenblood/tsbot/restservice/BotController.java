@@ -299,7 +299,7 @@ public class BotController {
         Map<String, String[]> params = webRequest.getParameterMap();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
-        return new ResponseEntity<>(pluginByConfigName.getResource(auth,resource, params), HttpStatus.OK);
+        return new ResponseEntity<>(pluginByConfigName.getResource(ts3Bot.getContext(), auth,resource, params), HttpStatus.OK);
     }
 
     @GetMapping("anonymous")
@@ -309,7 +309,7 @@ public class BotController {
         Map<String, String[]> params = webRequest.getParameterMap();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
-        pluginByConfigName.postResource(auth,resource, params);
+        pluginByConfigName.postResource(ts3Bot.getContext(), auth,resource, params);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -320,7 +320,7 @@ public class BotController {
         Map<String, String[]> params = webRequest.getParameterMap();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UpdatableTsBotPlugin pluginByConfigName = getUpdateablePluginByConfigName(configName);
-        pluginByConfigName.putResource(auth,resource, params, body);
+        pluginByConfigName.putResource(ts3Bot.getContext(), auth,resource, params, body);
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
