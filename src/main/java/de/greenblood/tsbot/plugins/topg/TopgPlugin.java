@@ -56,8 +56,10 @@ public class TopgPlugin extends UpdatableTsBotPlugin<TopgPluginConfig> {
         log.info("Get request from pubg " + resource + " " + convertWithStream(params));
         List<Client> clients = ClientsOnlineRetriever.getInstance().getClients(context, 0);
         String ipFromParams = getIpFromParams(params);
+        boolean found = false;
         for (Client client : clients) {
             if (ipFromParams.equals(client.getIp())) {
+                found = true;
                 String message = new MessageFormatingBuilder()
                         .addClient(client)
                         .build(this.topgPluginConfig.getVoteMessage());
@@ -67,7 +69,9 @@ public class TopgPlugin extends UpdatableTsBotPlugin<TopgPluginConfig> {
                 //"[COLOR=gray][B] | [/B][COLOR=orangered][B]Phoenix[/B][/COLOR][/COLOR] Â» [b] Vielen Dank fÃ¼r dein Vote. Du kannst in 24 Stunden erneut Voten und dir einen Boost abholen!"
             }
         }
-
+        if (found == false) {
+            log.warn("User who voted not found with params " + convertWithStream(params));
+        }
         return null;
     }
 
