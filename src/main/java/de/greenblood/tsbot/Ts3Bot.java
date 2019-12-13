@@ -106,7 +106,7 @@ public class Ts3Bot extends TS3EventAdapter {
         api.registerEvent(TS3EventType.SERVER);
         api.registerEvent(TS3EventType.CHANNEL);
         api.registerEvent(TS3EventType.TEXT_PRIVATE);
-        api.sendServerMessage(this.config.getBotNickname() + " is online!");
+        //api.sendServerMessage(this.config.getBotNickname() + " is online!");
 
         final ServerQueryInfo clientInfo = api.whoAmI();
         api.addTS3Listeners(this);

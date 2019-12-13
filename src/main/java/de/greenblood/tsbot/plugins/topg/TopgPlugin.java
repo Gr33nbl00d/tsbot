@@ -53,7 +53,7 @@ public class TopgPlugin extends UpdatableTsBotPlugin<TopgPluginConfig> {
     @Override
     public Object getResource(Ts3BotContext context, Authentication auth, String resource, Map<String, String[]> params) {
         // Get request from topgvoting {p_resp=[testuser], ip=[5.79.90.39]}
-        log.info("Get request from topg " + resource + " " + convertWithStream(params));
+        log.debug("Get request from topg " + resource + " " + convertWithStream(params));
         List<Client> clients = ClientsOnlineRetriever.getInstance().getClients(context, 0);
         String ipFromParams = getIpFromParams(params);
         boolean found = false;

@@ -13,15 +13,15 @@ public abstract class UpdatableTsBotPlugin<T extends UpdateablePluginConfig<T>> 
     public abstract UpdateablePluginConfig<T> getConfig();
 
     public Object getResource(Ts3BotContext context, Authentication auth, String resource, Map<String, String[]> params) {
-        throw new PluginWebRequestNotSupported("get request not supporeted");
+        throw new PluginWebRequestNotSupported("get request not supported");
     }
 
     public void postResource(Ts3BotContext context, Authentication auth, String resource, Map<String, String[]> params) {
-        throw new PluginWebRequestNotSupported("post request not supporeted");
+        throw new PluginWebRequestNotSupported("post request not supported");
     }
 
     public void putResource(Ts3BotContext context, Authentication auth, String resource, Map<String, String[]> params, String body) {
-        throw new PluginWebRequestNotSupported("put request not supporeted");
+        throw new PluginWebRequestNotSupported("put request not supported");
     }
 
 }

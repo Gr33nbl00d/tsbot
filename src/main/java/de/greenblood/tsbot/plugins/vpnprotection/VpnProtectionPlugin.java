@@ -1,6 +1,7 @@
 package de.greenblood.tsbot.plugins.vpnprotection;
 
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.google.gson.Gson;
 import de.greenblood.tsbot.caches.ClientInfoRetriever;
@@ -54,7 +55,15 @@ public class VpnProtectionPlugin extends UpdatableTsBotPlugin<VpnProtectionPlugi
 
     @Override
     public void onClientJoin(Ts3BotContext context, ClientJoinEvent e) {
-        ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
+        ClientInfo clientInfo = null;
+        try {
+            clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
+        } catch (TS3CommandFailedException e1) {
+            logger.debug("failed to check client info", e1);
+            return;
+        }
+        if (clientInfo == null)
+            return;
         String ip = clientInfo.getIp();
         if (ip.equals("[::1]")) {
             ip = "127.0.0.1";
