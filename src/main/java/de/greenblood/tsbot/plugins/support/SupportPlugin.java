@@ -139,10 +139,13 @@ public class SupportPlugin extends UpdatableTsBotPlugin<SupportPluginConfig> {
 
     private boolean isClientInIgnoredGroup(Ts3BotContext context, ClientMovedEvent e,
                                            SupportPluginConfig.SupportChannelConfig supportChannelConfig) {
-        for (Integer serverGroupId : supportChannelConfig.getServerGroupsToIgnore()) {
-            ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
-            if (clientInfo.isInServerGroup(serverGroupId)) {
-                return true;
+        List<Integer> serverGroupsToIgnore = supportChannelConfig.getServerGroupsToIgnore();
+        if(serverGroupsToIgnore != null) {
+            for (Integer serverGroupId : serverGroupsToIgnore) {
+                ClientInfo clientInfo = ClientInfoRetriever.getInstance().retrieve(context, e.getClientId(), true);
+                if (clientInfo.isInServerGroup(serverGroupId)) {
+                    return true;
+                }
             }
         }
         return false;
